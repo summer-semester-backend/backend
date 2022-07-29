@@ -4,4 +4,4 @@ from django.views.decorators.csrf import csrf_exempt
 
 @csrf_exempt
 def hello(request):
-    print("Hello world!")
+    print("Hello world!!!!")
