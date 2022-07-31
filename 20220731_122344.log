@@ -1,0 +1,24 @@
+git config --global user.email 1114891937@qq.com
+git config --global user.name WeiXia
+git checkout main
+git reset --hard origin/main
+git pull
+conda activate django
+python /home/xw/backend/manage.py runserver 0.0.0.0:8000
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
