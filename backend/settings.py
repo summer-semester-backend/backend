@@ -77,16 +77,10 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'ENFORCE_SCHEMA': True,
-        'NAME': 'summer',
-        'USER': 'rg',
-        'PASSWORD': '123',
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'summer.db')
     }
 }
-
 
 
 # Password validation
