@@ -9,4 +9,4 @@ def hello(request):
 
 @csrf_exempt
 def yoo(request):
-    return JsonResponse({'msg':'yooo!'})
+    return JsonResponse({'msg':'yoo!'})
