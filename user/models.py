@@ -14,16 +14,3 @@ class UserInfo(models.Model):
         db_table = "UserInfo"
 
 
-class Book(models.Model):
-    ISBN = models.CharField(max_length=50, primary_key=True)
-    Title = models.CharField(max_length=50, null=True)
-
-    class Meta:
-        db_table = "Book"
-
-
-class Order(models.Model):
-    OrderID = models.UUIDField(auto_created=True, primary_key=True)
-
-    class Meta:
-        db_table = "Order"

@@ -80,3 +80,23 @@ def lack_err(lack_list):
         'msg': '请求缺少字段',
         'lack_list': list(lack_list),
     })
+
+
+from jwt import encode
+from jwt import decode
+import datetime
+from backend.user.models import *
+
+
+def gettoken(email):
+    time = datetime.datetime.now()
+    return encode({'email': email, 'login_time': str(time), 'id': UserInfo.objects.get(email=email).userID
+                   }, 'secret_key', algorithm='HS256')
+
+
+def check(token):
+    try:
+        s = decode(token, 'secret_key', algorithms=['HS256'])
+    except:
+        return -1
+    return s.get('id', -1)
