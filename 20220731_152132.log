@@ -1,0 +1,43 @@
+git config --global user.email 1114891937@qq.com
+git config --global user.name WeiXia
+git checkout main
+git reset --hard origin/main
+git pull
+conda activate django
+python /home/xw/backend/manage.py runserver 0.0.0.0:8000
+(base) xw@VM-20-3-ubuntu:~/backend$ git config --global user.email 1114891937@qq
+.com
+(base) xw@VM-20-3-ubuntu:~/backend$ git config --global user.name WeiXia
+(base) xw@VM-20-3-ubuntu:~/backend$ git checkout main
+M       summer.db
+Already on 'main'
+Your branch is up to date with 'origin/main'.
+(base) xw@VM-20-3-ubuntu:~/backend$ git reset --hard origin/main
+HEAD is now at af15cea try
+(base) xw@VM-20-3-ubuntu:~/backend$ git pull
+remote: Enumerating objects: 13, done.
+remote: Counting objects: 100% (13/13), done.
+remote: Compressing objects: 100% (4/4), done.
+remote: Total 9 (delta 4), reused 9 (delta 4), pack-reused 0
+Unpacking objects: 100% (9/9), 1.95 KiB | 1.95 MiB/s, done.
+From https://github.com/summer-semester-backend/backend
+   af15cea..3239795  main       -> origin/main
+Updating af15cea..3239795
+Fast-forward
+ user/urls.py   |  1 +
+ user/views.py  | 13 ++++++++++
+ utils/utils.py | 82 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 96 insertions(+)
+ create mode 100644 utils/utils.py
+(base) xw@VM-20-3-ubuntu:~/backend$ conda activate django
+(django) xw@VM-20-3-ubuntu:~/backend$ python /home/xw/backend/manage.py runserve
+r 0.0.0.0:8000
+Watching for file changes with StatReloader
+Performing system checks...
+
+System check identified no issues (0 silenced).
+July 31, 2022 - 15:21:15
+Django version 4.0.4, using settings 'backend.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
