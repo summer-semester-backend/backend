@@ -16,7 +16,6 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
@@ -27,7 +26,6 @@ SECRET_KEY = 'django-insecure-7j4k(43tc(7vl@vj=*=kyi00io#eju#uz^w%4)f-*18rv!+(pz
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-
 
 # Application definition
 
@@ -71,7 +69,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
@@ -82,8 +79,6 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'summer.db')
     }
 }
-
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
@@ -103,7 +98,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
 
@@ -115,7 +109,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
@@ -126,24 +119,24 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-EMAIL_BACKEND ='django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.qq.com' # 腾讯QQ邮箱 SMTP 服务器地址
-EMAIL_PORT = 25 # SMTP服务的端口号
-EMAIL_HOST_USER = '1114891937@qq.com' #你的qq邮箱，邮件发送者的邮箱
-EMAIL_HOST_PASSWORD = 'mahikdwttvvcbaai' #你申请的授权码（略）
-EMAIL_USE_TLS = False #与SMTP服务器通信时,是否启用安全模式
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.qq.com'  # 腾讯QQ邮箱 SMTP 服务器地址
+EMAIL_PORT = 25  # SMTP服务的端口号
+EMAIL_HOST_USER = '1114891937@qq.com'  # 你的qq邮箱，邮件发送者的邮箱
+EMAIL_HOST_PASSWORD = 'mahikdwttvvcbaai'  # 你申请的授权码（略）
+EMAIL_USE_TLS = False  # 与SMTP服务器通信时,是否启用安全模式
 
 CORS_ALLOW_CREDENTIALS = True  # 允许携带cookie
-CORS_ORIGIN_ALLOW_ALL = True   # 允许所有源访问
+CORS_ORIGIN_ALLOW_ALL = True  # 允许所有源访问
 CORS_ORIGIN_WHITELIST = (
-    'http://127.0.0.1:8000',    #设置白名单
+    'http://127.0.0.1:8000',  # 设置白名单
     'http://localhost:8080',
     'http://43.138.77.8',
     'http://localhost:8000'
 )
 
 CORS_ALLOW_METHODS = (
-    'DELETE',                 #允许的方法
+    'DELETE',  # 允许的方法
     'GET',
     'OPTIONS',
     'PATCH',
@@ -156,7 +149,7 @@ CORS_ALLOW_HEADERS = (
     'XMLHttpRequest',
     'X_FILENAME',
     'accept-encoding',
-    'authorization',          #允许的请求头
+    'authorization',  # 允许的请求头
     'content-type',
     'dnt',
     'origin',
@@ -169,7 +162,6 @@ CORS_ALLOW_HEADERS = (
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8000'
 ]
-
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
