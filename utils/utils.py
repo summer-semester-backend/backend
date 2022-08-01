@@ -1,6 +1,12 @@
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-from django.http import JsonResponse
+import json
 
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from django.http import JsonResponse, HttpRequest
+
+from jwt import encode
+from jwt import decode
+import datetime
+from user.models import *
 
 # from user.models import User
 
@@ -18,10 +24,12 @@ def res(errno, message):
 
 
 # 一次性get所有参数, args为可变参数列表
-def post_get_all(request, *args):
+def get_params(request, *args):
+    assert isinstance(request, HttpRequest)
+    data_json = json.loads(request.body)
     result = {}
     for arg in args:
-        result[str(arg)] = request.POST.get(str(arg))
+        result[str(arg)] = result[str(arg)]
     return result
 
 
@@ -34,6 +42,10 @@ def check_lack(obj_dic):
     if len(lack_list) > 0:
         return True, lack_list
     return False, None
+
+
+def simple_res(code, message):
+    return JsonResponse({'result': code, 'message': message})
 
 
 # # 从用户名或邮箱获取用户对象
@@ -82,19 +94,16 @@ def lack_err(lack_list):
     })
 
 
-from jwt import encode
-from jwt import decode
-import datetime
-from backend.user.models import *
 
 
-def gettoken(email):
+
+def get_token(email):
     time = datetime.datetime.now()
     return encode({'email': email, 'login_time': str(time), 'id': UserInfo.objects.get(email=email).userID
                    }, 'secret_key', algorithm='HS256')
 
 
-def check(token):
+def check_token(token):
     try:
         s = decode(token, 'secret_key', algorithms=['HS256'])
     except:

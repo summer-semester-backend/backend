@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.http import QueryDict, JsonResponse
-
+from utils.utils import *
 
 @csrf_exempt
 def put(request):
@@ -58,7 +58,7 @@ def post(request):
         return JsonResponse(result)
 
 
-from backend.utils.utils import *
+
 
 
 @csrf_exempt
@@ -73,7 +73,7 @@ def yoo(request):
 
 @csrf_exempt
 def login(request):
-    params = post_get_all(request, 'username', 'password')
+    params = get_params(request, 'username', 'password')
     lack, lack_list = check_lack(params)
     if lack:
         return lack_err(lack_list)
