@@ -3,10 +3,10 @@ from django.http import JsonResponse
 from jwt import encode
 from jwt import decode
 import datetime
-from backend.user.models import *
+from user.models import *
 from random import Random
 from django.core.mail import send_mail  # 发送邮件模块
-from backend.backend import settings  # setting.py添加的的配置信息
+from backend import settings  # setting.py添加的的配置信息
 import datetime
 import json
 
@@ -16,7 +16,7 @@ from django.http import JsonResponse, HttpRequest
 from jwt import encode
 from jwt import decode
 import datetime
-from backend.user.models import *
+from user.models import *
 
 
 # from user.models import User
