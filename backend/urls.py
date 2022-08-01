@@ -15,8 +15,21 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
+from user.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/user/', include(('user.urls', 'user')))
+    path('api/auth/login', login),
+    path('api/auth/register', register),
+    path('api/auth/emailRegister', email_register),
+    path('api/auth/emailForget', email_forget),
+    path('api/auth/passwordForget', password_forget),
+    path('api/auth/passwordChange', password_change),
+    path('api/user/update', update),
+    path('api/user/{int:id}', get_user),
+    path('api/upload', upload),
 ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
