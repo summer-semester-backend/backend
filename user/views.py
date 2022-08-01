@@ -2,12 +2,12 @@ import json
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.http import QueryDict, JsonResponse
-from backend.utils.utils import *
+from utils.utils import *
 from .models import *
 from datetime import timedelta
-from backend.backend import settings
+from backend import settings
 from datetime import date, timezone
-from backend.utils.utils import *
+from utils.utils import *
 
 
 @csrf_exempt
