@@ -70,6 +70,8 @@ def register(request):
         password = data_json.get('password')
         email = data_json.get('email')
         nickname = data_json.get('nickname')
+        if not nickname:
+            nickname = username
         code = data_json.get('code')
         if User.objects.filter(email=email).exists():
             return JsonResponse({'result': 2, 'message': "邮箱已注册!"})
@@ -190,7 +192,7 @@ def password_forget(request):
 
 @csrf_exempt
 def password_change(request):
-    if request.method == 'POST':
+    if request.method == 'PUT':
         data_json = json.loads(request.body)
         token = request.META.get('HTTP_AUTHORIZATION', 0)
         userID = check_token(token)
@@ -198,7 +200,7 @@ def password_change(request):
             result = {'result': 2, 'message': 'Token有误!'}
             return JsonResponse(result)
         password = data_json.get('password')
-        n_password = data_json.get('nPassword')
+        n_password = data_json.get('newPassword')
         user = User.objects.get(userID=userID)
         if user.password == password:
             user.password = n_password
@@ -258,10 +260,10 @@ def get_user(request, id):
             return JsonResponse(result)
         id = int(id)
         user = User.objects.get(userID=id)
-        result = {'result': 0, 'message': '查询成功!', 'username': user.username, 'nickname': user.nickname,
-                  'userID': user.userID, 'url': user.get_photo_url, 'email': user.email, 'phone': user.phone,
-                  'summary': user.summary, 'sex': user.sex,
-                  }
+        data = {'username': user.username, 'nickname': user.nickname,
+                'userID': user.userID, 'avatar': user.avatar, 'email': user.email, 'phone': user.phone,
+                'summary': user.summary, 'sex': user.sex, }
+        result = {'result': 0, 'message': '查询成功!', 'data': data}
         return JsonResponse(result)
     else:
         result = {'result': 2, 'message': '前端炸了!'}
@@ -274,7 +276,8 @@ def upload(request):
         source = request.FILES.get('file')
         if source:
             img = Img(img=source)
-            result = {'result': 0, 'message': '上传成功!', 'url': 'http://43.138.77.8/api/upload'+img.url}
+            img.save()
+            result = {'result': 0, 'message': '上传成功!', 'url': 'http://43.138.77.8:8000/api/upload' + img.img.url}
             return JsonResponse(result)
         else:
             result = {'result': 2, 'message': '请检查上传内容!'}
