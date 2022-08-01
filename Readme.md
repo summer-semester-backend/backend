@@ -16,18 +16,16 @@
 ### 返回内容格式
 
 - json格式, 字段名使用**小驼峰**
-- `result` 0表示有问题, 1表示没问题
+- `result` 0表示正常, <font color="#ffc800">1表示警告</font>, <font color="#e90000">2表示错误</font>
 - `message` 简单描述操作结果
-- `content` 为可选, 提供更多信息
+- 其余字段提供更多信息, 也可不存在
 - 例子:
     ```json
     {
-      "result": 1,
+      "result": 0,
       "message": "提示信息",
-      "content": {
-        "xxx": ".......",
-        "someInform": "....."
-      }
+      "content1": "......",
+      "content2": "........"
     }
     ```
 
