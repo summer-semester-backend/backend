@@ -8,6 +8,15 @@ from random import Random
 from django.core.mail import send_mail  # 发送邮件模块
 from backend.backend import settings  # setting.py添加的的配置信息
 import datetime
+import json
+
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from django.http import JsonResponse, HttpRequest
+
+from jwt import encode
+from jwt import decode
+import datetime
+from backend.user.models import *
 
 
 # from user.models import User
@@ -26,10 +35,12 @@ def res(errno, message):
 
 
 # 一次性get所有参数, args为可变参数列表
-def post_get_all(request, *args):
+def get_params(request, *args):
+    assert isinstance(request, HttpRequest)
+    data_json = json.loads(request.body)
     result = {}
     for arg in args:
-        result[str(arg)] = request.POST.get(str(arg))
+        result[str(arg)] = result[str(arg)]
     return result
 
 
@@ -42,6 +53,10 @@ def check_lack(obj_dic):
     if len(lack_list) > 0:
         return True, lack_list
     return False, None
+
+
+def simple_res(code, message):
+    return JsonResponse({'result': code, 'message': message})
 
 
 # # 从用户名或邮箱获取用户对象
@@ -92,13 +107,14 @@ def lack_err(lack_list):
 
 # ------------------ token模块 -----------------------
 
-def gettoken(email):
+
+def get_token(email):
     time = datetime.datetime.now()
     return encode({'email': email, 'login_time': str(time), 'id': User.objects.get(email=email).userID
                    }, 'secret_key', algorithm='HS256')
 
 
-def check(token):
+def check_token(token):
     try:
         s = decode(token, 'secret_key', algorithms=['HS256'])
     except:

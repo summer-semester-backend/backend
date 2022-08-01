@@ -7,6 +7,7 @@ from .models import *
 from datetime import timedelta
 from backend.backend import settings
 from datetime import date, timezone
+from backend.utils.utils import *
 
 
 @csrf_exempt
@@ -106,7 +107,7 @@ def login(request):
                 else:
                     request.session['email'] = email
                     result = {'result': 1, 'message': '登录成功!', 'username': user.username}
-                    token = gettoken(email)
+                    token = get_token(email)
                     result['token'] = token
                     request.session['token'] = token
                     result['userID'] = user.userID
@@ -192,7 +193,7 @@ def password_change(request):
     if request.method == 'POST':
         data_json = json.loads(request.body)
         token = request.META.get('HTTP_AUTHORIZATION', 0)
-        userID = check(token)
+        userID = check_token(token)
         if userID == -1:
             result = {'result': 0, 'message': 'Token有误!'}
             return JsonResponse(result)
@@ -217,7 +218,7 @@ def upload_info(request):  # 修改用户基础信息
     if request.method == 'POST':
         data_json = json.loads(request.body)
         token = request.META.get('HTTP_AUTHORIZATION', 0)
-        userID = check(token)
+        userID = check_token(token)
         if userID == -1:
             result = {'result': 0, 'message': 'Token有误!'}
             return JsonResponse(result)
@@ -250,7 +251,7 @@ def upload_info(request):  # 修改用户基础信息
 def upload_avatars(request):  # 修改头像
     if request.method == 'POST':
         token = request.META.get('HTTP_AUTHORIZATION', 0)
-        userID = check(token)
+        userID = check_token(token)
         if userID == -1:
             result = {'result': 0, 'message': 'Token有误!'}
             return JsonResponse(result)
@@ -276,7 +277,7 @@ def upload_avatars(request):  # 修改头像
 def get_user(request):
     if request.method == 'POST':
         token = request.META.get('HTTP_AUTHORIZATION', 0)
-        userID = check(token)
+        userID = check_token(token)
         if userID == -1:
             result = {'result': 0, 'message': 'Token有误!'}
             return JsonResponse(result)
