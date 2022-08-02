@@ -36,7 +36,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'user'
+    'user',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -47,6 +48,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -129,10 +132,8 @@ EMAIL_USE_TLS = False  # 与SMTP服务器通信时,是否启用安全模式
 CORS_ALLOW_CREDENTIALS = True  # 允许携带cookie
 CORS_ORIGIN_ALLOW_ALL = True  # 允许所有源访问
 CORS_ORIGIN_WHITELIST = (
-    'http://127.0.0.1:8000',  # 设置白名单
-    'http://localhost:8080',
-    'http://43.138.77.8',
-    'http://localhost:8000'
+    'http://127.0.0.1:8000',    #设置白名单
+    'http://localhost:8000',
 )
 
 CORS_ALLOW_METHODS = (
