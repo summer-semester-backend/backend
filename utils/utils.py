@@ -106,10 +106,22 @@ def check_code(code):
 def get_user_auth(user, team):
     assert isinstance(user, User)
     assert isinstance(team, Team)
-    auth = Team_User.objects.filter(user=user, team=team)
-    if len(auth) == 0:  # 用户不在此团队
-        return -1
-    if len(auth) == 1:
-        return auth[0].authority
+    tu = Team_User.objects.filter(user=user, team=team)
+    # auth = tu.authority
+    if len(tu) == 0:  # 用户不在此团队
+        return -100
+    if len(tu) == 1:
+        return tu[0].authority
     raise Exception('有多个权限信息')
     # return -2  # 有多个权限信息
+
+def set_user_auth(user, team, auth):
+    assert isinstance(user, User)
+    assert isinstance(team, Team)
+    tu = Team_User.objects.filter(user=user, team=team)
+    # auth = tu.authority
+    if len(tu) == 0:  # 用户不在此团队
+        return
+    if len(tu) == 1:
+        return tu[0].authority
+    raise Exception('有多个权限信息')

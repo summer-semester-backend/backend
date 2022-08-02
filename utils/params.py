@@ -8,7 +8,19 @@ def get_params(request, *args):
     data_json = json.loads(request.body)
     result = {}
     for arg in args:
-        result[str(arg)] = result[str(arg)]
+        if str(arg) in data_json:
+            result[str(arg)] = data_json[str(arg)]
+        else:
+            result[str(arg)] = None
+    return result
+
+
+def get_params_by_list(request, arg_list):
+    assert isinstance(request, HttpRequest)
+    data_json = json.loads(request.body)
+    result = {}
+    for arg in arg_list:
+        result[str(arg)] = data_json[str(arg)]
     return result
 
 

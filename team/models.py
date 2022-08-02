@@ -16,6 +16,10 @@ class Team(models.Model):
         to_field='userID',
         on_delete=models.CASCADE,
     )
+    summary = models.CharField(
+        max_length=65536,
+        default=''
+    )
     # team_root_file = models.ForeignKey(
     #     'file.File',
     #     on_delete=models.CASCADE,
@@ -30,6 +34,12 @@ class Team(models.Model):
         }
 
 
+class C:
+    founder = 2
+    manager = 1
+    member = 0
+    invited = -1
+
 class Team_User(models.Model):
     team = models.ForeignKey(
         Team,
@@ -41,16 +51,27 @@ class Team_User(models.Model):
         to_field='userID',
         on_delete=models.CASCADE,
     )
-    # founder = '0'
-    # manager = '1'
-    # member = '2'
     auth_choices = [
-        (2, 'founder'),
-        (1, 'manager'),
-        (0, 'member'),
+        (C.founder, 'founder'),
+        (C.manager, 'manager'),
+        (C.member, 'member'),
+        (C.invited, 'invited')
     ]
     authority = models.IntegerField(
         choices=auth_choices,
         default=0,
     )
 
+
+class Invitation(models.Model):
+    team = models.ForeignKey(
+        Team,
+        to_field='teamID',
+        on_delete=models.CASCADE,
+    )
+    user = models.ForeignKey(
+        User,
+        to_field='userID',
+        on_delete=models.CASCADE,
+    )
+    invite_url = models.CharField(max_length=30)

@@ -27,8 +27,12 @@ def error_res(message, content=None):
 
 
 def method_err_res():
-    return res(2, '请求方法错误')
+    return error_res('请求方法错误')
 
 
 def not_login_res():
-    return res(2, '用户未登录')
+    return error_res('用户未登录')
+
+
+def bad_authority_res(want_to_do_what):
+    return error_res("操作权限不足: "+str(want_to_do_what))
