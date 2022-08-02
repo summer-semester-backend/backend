@@ -21,6 +21,9 @@ from user.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/user/', include(('user.urls', 'user'))),
+    path('api/auth/', include(('user.urls', 'user'))),
+    path('api/team/', include(('team.urls', 'team'))),
     path('api/auth/login', login),
     path('api/auth/register', register),
     path('api/auth/emailRegister', email_register),

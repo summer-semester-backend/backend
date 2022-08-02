@@ -1,3 +1,6 @@
+# 各种同类函数不<3个的函数
+# 如果同类函数>=3个, 应另开一个文件
+
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.http import JsonResponse
 from jwt import encode
@@ -17,6 +20,7 @@ from jwt import encode
 from jwt import decode
 import datetime
 from user.models import *
+from team.models import Team, Team_User
 
 
 # from user.models import User
@@ -41,6 +45,17 @@ def check_token(token):
     except:
         return -1
     return s.get('id', -1)
+
+
+def get_user_id(request):
+    token = request.META.get('HTTP_AUTHORIZATION', 0)
+    userID = check_token(token)
+    if userID == -1:
+        result = {'result': 0, 'message': 'Token有误!'}
+        return False, JsonResponse(result)
+    return True, userID
+
+
 
 
 # ------------------ email模块 -----------------------
@@ -86,3 +101,15 @@ def check_code(code):
     else:
         EmailCode.objects.filter(code=code).delete()
         return True
+
+
+def get_user_auth(user, team):
+    assert isinstance(user, User)
+    assert isinstance(team, Team)
+    auth = Team_User.objects.filter(user=user, team=team)
+    if len(auth) == 0:  # 用户不在此团队
+        return -1
+    if len(auth) == 1:
+        return auth[0].authority
+    raise Exception('有多个权限信息')
+    # return -2  # 有多个权限信息
