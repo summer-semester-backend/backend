@@ -70,23 +70,25 @@ def register(request):
         password = data_json.get('password')
         email = data_json.get('email')
         nickname = data_json.get('nickname')
+        if not nickname:
+            nickname = username
         code = data_json.get('code')
         if User.objects.filter(email=email).exists():
-            return JsonResponse({'result': 0, 'message': "邮箱已注册!"})
+            return JsonResponse({'result': 2, 'message': "邮箱已注册!"})
         else:
             if not EmailCode.objects.filter(code=code).exists():
-                return JsonResponse({'result': 0, 'message': "验证码错误!"})
+                return JsonResponse({'result': 2, 'message': "验证码错误!"})
             email_code = EmailCode.objects.get(code=code)
             now = datetime.datetime.now(timezone.utc)
             if (now - email_code.time).seconds > 300:
-                return JsonResponse({'result': 0, 'message': "验证码已失效!"})
+                return JsonResponse({'result': 2, 'message': "验证码已失效!"})
             users = User.objects.all()
             count = len(users)
             new_user = User(userID=count, username=username, nickname=nickname, password=password, email=email)
             new_user.save()
-        return JsonResponse({'result': 1, 'message': "注册成功!"})
+        return JsonResponse({'result': 0, 'message': "注册成功!"})
     else:
-        return JsonResponse({'result': 0, 'message': "前端炸了!"})
+        return JsonResponse({'result': 2, 'message': "前端炸了!"})
 
 
 @csrf_exempt
@@ -96,24 +98,24 @@ def login(request):
         email = data_json.get('email')
         password = data_json.get('password')
         if len(email) == 0 or len(password) == 0:
-            result = {'result': 0, 'message': '邮箱与密码不允许为空!'}
+            result = {'result': 2, 'message': '邮箱与密码不允许为空!'}
         else:
             if not User.objects.filter(email=email).exists():
-                result = {'result': 0, 'message': '邮箱未注册!'}
+                result = {'result': 2, 'message': '邮箱未注册!'}
             else:
                 user = User.objects.get(email=email)
                 if user.password != password:
-                    result = {'result': 0, 'message': '密码不正确!'}
+                    result = {'result': 2, 'message': '密码不正确!'}
                 else:
                     request.session['email'] = email
-                    result = {'result': 1, 'message': '登录成功!', 'username': user.username}
+                    result = {'result': 0, 'message': '登录成功!', 'username': user.username}
                     token = get_token(email)
                     result['token'] = token
                     request.session['token'] = token
                     result['userID'] = user.userID
         return JsonResponse(result)
     else:
-        result = {'result': 0, 'message': '前端炸了'}
+        result = {'result': 2, 'message': '前端炸了'}
         return JsonResponse(result)
 
 
@@ -125,16 +127,16 @@ def email_register(request):
         if email.count('@') == 1:
             send_result = send_code_email(email)
             if not send_result:
-                result = {'result': 0, 'message': '发送失败!请检查邮箱格式'}
+                result = {'result': 2, 'message': '发送失败!请检查邮箱格式'}
                 return JsonResponse(result)
             else:
-                result = {'result': 1, 'message': '发送成功!请及时在邮箱中查收.'}
+                result = {'result': 0, 'message': '发送成功!请及时在邮箱中查收.'}
                 return JsonResponse(result)
         else:
-            result = {'result': 0, 'message': '邮箱格式不正确!'}
+            result = {'result': 2, 'message': '邮箱格式不正确!'}
             return JsonResponse(result)
     else:
-        result = {'result': 0, 'message': '前端炸了!'}
+        result = {'result': 2, 'message': '前端炸了!'}
         return JsonResponse(result)
 
 
@@ -146,16 +148,16 @@ def email_forget(request):
         if email.count('@') == 1:
             send_result = send_password_code_email(email)
             if not send_result:
-                result = {'result': 0, 'message': '发送失败!请检查邮箱格式'}
+                result = {'result': 2, 'message': '发送失败!请检查邮箱格式'}
                 return JsonResponse(result)
             else:
-                result = {'result': 1, 'message': '发送成功!请及时在邮箱中查收.'}
+                result = {'result': 0, 'message': '发送成功!请及时在邮箱中查收.'}
                 return JsonResponse(result)
         else:
-            result = {'result': 0, 'message': '邮箱格式不正确!'}
+            result = {'result': 2, 'message': '邮箱格式不正确!'}
             return JsonResponse(result)
     else:
-        result = {'result': 0, 'message': '前端炸了!'}
+        result = {'result': 2, 'message': '前端炸了!'}
         return JsonResponse(result)
 
 
@@ -168,59 +170,59 @@ def password_forget(request):
             user = User.objects.get(email=email)
             code = data_json.get('code')
             if not EmailCode.objects.filter(code=code).exists():
-                result = {'result': 0, 'message': '验证码错误!'}
+                result = {'result': 2, 'message': '验证码错误!'}
                 return JsonResponse(result)
             email_code = EmailCode.objects.get(code=code)
             now = datetime.datetime.now(timezone.utc)
             if (now - email_code.time).seconds > 300:
-                return JsonResponse({'result': 0, 'message': "验证码已失效!"})
+                return JsonResponse({'result': 2, 'message': "验证码已失效!"})
             email_code.delete()
             password = data_json.get('password')
             user.password = password
             user.save()
-            result = {'result': 1, 'message': '修改成功!'}
+            result = {'result': 0, 'message': '修改成功!'}
             return JsonResponse(result)
         else:
-            result = {'result': 0, 'message': '不存在该用户!'}
+            result = {'result': 2, 'message': '不存在该用户!'}
             return JsonResponse(result)
     else:
-        result = {'result': 0, 'message': '前端炸了!'}
+        result = {'result': 2, 'message': '前端炸了!'}
         return JsonResponse(result)
 
 
 @csrf_exempt
 def password_change(request):
-    if request.method == 'POST':
+    if request.method == 'PUT':
         data_json = json.loads(request.body)
         token = request.META.get('HTTP_AUTHORIZATION', 0)
         userID = check_token(token)
         if userID == -1:
-            result = {'result': 0, 'message': 'Token有误!'}
+            result = {'result': 2, 'message': 'Token有误!'}
             return JsonResponse(result)
         password = data_json.get('password')
-        n_password = data_json.get('n_password')
+        n_password = data_json.get('newPassword')
         user = User.objects.get(userID=userID)
         if user.password == password:
             user.password = n_password
             user.save()
-            result = {'result': 1, 'message': '修改成功!'}
+            result = {'result': 0, 'message': '修改成功!'}
             return JsonResponse(result)
         else:
-            result = {'result': 0, 'message': '密码不正确!'}
+            result = {'result': 2, 'message': '密码不正确!'}
             return JsonResponse(result)
     else:
-        result = {'result': 0, 'message': '前端炸了!'}
+        result = {'result': 2, 'message': '前端炸了!'}
         return JsonResponse(result)
 
 
 @csrf_exempt
-def upload_info(request):  # 修改用户基础信息
+def update(request):  # 修改用户基础信息
     if request.method == 'POST':
         data_json = json.loads(request.body)
         token = request.META.get('HTTP_AUTHORIZATION', 0)
         userID = check_token(token)
         if userID == -1:
-            result = {'result': 0, 'message': 'Token有误!'}
+            result = {'result': 2, 'message': 'Token有误!'}
             return JsonResponse(result)
         user = User.objects.get(userID=userID)
         user.sex = int(data_json.get('sex'))
@@ -229,64 +231,57 @@ def upload_info(request):  # 修改用户基础信息
         user.nickname = data_json.get('nickname')
         email = data_json.get('email')
         user.summary = data_json.get('summary')
+        user.avatar = data_json.get('avatar')
         if email == user.email:
             user.email = data_json.get('email')
             user.save()
-            result = {'result': 1, 'message': '修改成功!'}
+            result = {'result': 0, 'message': '修改成功!'}
             return JsonResponse(result)
         if User.objects.filter(email=email).exists():
-            result = {'result': 0, 'message': '邮箱已注册!'}
+            result = {'result': 2, 'message': '邮箱已注册!'}
             return JsonResponse(result)
         else:
             user.email = data_json.get('email')
             user.save()
-            result = {'result': 1, 'message': '修改成功!'}
+            result = {'result': 0, 'message': '修改成功!'}
             return JsonResponse(result)
     else:
-        result = {'result': 0, 'message': '前端炸了!'}
+        result = {'result': 2, 'message': '前端炸了!'}
         return JsonResponse(result)
 
 
 @csrf_exempt
-def upload_avatars(request):  # 修改头像
-    if request.method == 'POST':
+def get_user(request, id):
+    if request.method == 'GET':
         token = request.META.get('HTTP_AUTHORIZATION', 0)
         userID = check_token(token)
         if userID == -1:
-            result = {'result': 0, 'message': 'Token有误!'}
+            result = {'result': 2, 'message': 'Token有误!'}
             return JsonResponse(result)
+        id = int(id)
+        user = User.objects.get(userID=id)
+        data = {'username': user.username, 'nickname': user.nickname,
+                'userID': user.userID, 'avatar': user.avatar, 'email': user.email, 'phone': user.phone,
+                'summary': user.summary, 'sex': user.sex, }
+        result = {'result': 0, 'message': '查询成功!', 'data': data}
+        return JsonResponse(result)
+    else:
+        result = {'result': 2, 'message': '前端炸了!'}
+        return JsonResponse(result)
+
+
+@csrf_exempt
+def upload(request):
+    if request.method == 'POST':
         source = request.FILES.get('file')
         if source:
-            if User.objects.filter(userID=userID).exists():
-                user = User.objects.get(userID=userID)
-                user.header = source
-                user.save()
-                result = {'result': 1, 'userID': userID, 'url': user.get_photo_url}
-            else:
-                result = {'result': 0, 'message': '未找到该用户!'}
+            img = Img(img=source)
+            img.save()
+            result = {'result': 0, 'message': '上传成功!', 'url': 'http://43.138.77.8:8000/api/upload' + img.img.url}
             return JsonResponse(result)
         else:
-            result = {'result': 0, 'message': '请检查上传内容!'}
+            result = {'result': 2, 'message': '请检查上传内容!'}
             return JsonResponse(result)
     else:
-        result = {'result': 0, 'message': '前端炸了!'}
-        return JsonResponse(result)
-
-
-@csrf_exempt
-def get_user(request):
-    if request.method == 'POST':
-        token = request.META.get('HTTP_AUTHORIZATION', 0)
-        userID = check_token(token)
-        if userID == -1:
-            result = {'result': 0, 'message': 'Token有误!'}
-            return JsonResponse(result)
-        user = User.objects.get(userID=userID)
-        result = {'result': 1, 'message': '查询成功!', 'username': user.username, 'nickname': user.nickname,
-                  'userID': userID, 'url': user.get_photo_url, 'email': user.email, 'phone': user.phone,
-                  'summary': user.summary, 'sex': user.sex,
-                  }
-        return JsonResponse(result)
-    else:
-        result = {'result': 0, 'message': '前端炸了!'}
+        result = {'result': 2, 'message': '前端炸了!'}
         return JsonResponse(result)
