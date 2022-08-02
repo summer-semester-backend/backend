@@ -277,7 +277,7 @@ def upload(request):
         if source:
             img = Img(img=source)
             img.save()
-            result = {'result': 0, 'message': '上传成功!', 'url': 'http://43.138.77.8:8000/api/upload' + img.img.url}
+            result = {'result': 0, 'message': '上传成功!', 'url': 'http://43.138.77.8:8000' + img.img.url}
             return JsonResponse(result)
         else:
             result = {'result': 2, 'message': '请检查上传内容!'}
