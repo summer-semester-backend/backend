@@ -192,7 +192,7 @@ def password_forget(request):
 
 @csrf_exempt
 def password_change(request):
-    if request.method == 'PUT':
+    if request.method == 'POST':
         data_json = json.loads(request.body)
         token = request.META.get('HTTP_AUTHORIZATION', 0)
         userID = check_token(token)
@@ -251,15 +251,16 @@ def update(request):  # 修改用户基础信息
 
 
 @csrf_exempt
-def get_user(request, id):
-    if request.method == 'GET':
+def get_user(request):
+    if request.method == 'POST':
         token = request.META.get('HTTP_AUTHORIZATION', 0)
         userID = check_token(token)
         if userID == -1:
             result = {'result': 2, 'message': 'Token有误!'}
             return JsonResponse(result)
-        id = int(id)
-        user = User.objects.get(userID=id)
+        data_json = json.loads(request.body)
+        userID = int(data_json.get('userID'))
+        user = User.objects.get(userID=userID)
         data = {'username': user.username, 'nickname': user.nickname,
                 'userID': user.userID, 'avatar': user.avatar, 'email': user.email, 'phone': user.phone,
                 'summary': user.summary, 'sex': user.sex, }
