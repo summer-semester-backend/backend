@@ -31,7 +31,7 @@ urlpatterns = [
     path('api/auth/forgetPassword', password_forget),
     path('api/auth/changePassword', password_change),
     path('api/user/update', update),
-    path('api/user/{int:id}', get_user),
+    path('api/user/detail', get_user),
     path('api/upload', upload),
 ]
 
