@@ -14,24 +14,19 @@ class Team(models.Model):
     creator = models.ForeignKey(
         User,
         to_field='userID',
-        on_delete=models.CASCADE
-    )
-    manager = models.ForeignKey(
-        User,
-        to_field='userID',
-        on_delete=models.CASCADE
-    )
-    team_root_file = models.ForeignKey(
-        'file.File',
         on_delete=models.CASCADE,
-        related_name='xx',
-        null=True,
     )
+    # team_root_file = models.ForeignKey(
+    #     'file.File',
+    #     on_delete=models.CASCADE,
+    #     related_name='xx',
+    #     null=True,
+    # )
 
     def to_dic(self):
         return {
             'team_name': self.team_name,
-            'manager': self.manager.username,
+            'creator': self.creator.username,
         }
 
 
@@ -46,17 +41,16 @@ class Team_User(models.Model):
         to_field='userID',
         on_delete=models.CASCADE,
     )
-    founder = '0'
-    manager = '1'
-    member = '2'
-    character_choices = [
-        (founder, 'founder'),
-        (manager, 'manager'),
-        (member, 'member'),
+    # founder = '0'
+    # manager = '1'
+    # member = '2'
+    auth_choices = [
+        (2, 'founder'),
+        (1, 'manager'),
+        (0, 'member'),
     ]
-    character = models.CharField(
-        max_length=1,
-        choices=character_choices,
-        default=member,
+    authority = models.IntegerField(
+        choices=auth_choices,
+        default=0,
     )
 
