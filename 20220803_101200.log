@@ -1,0 +1,24 @@
+git config --global user.email 1114891937@qq.com
+git config --global user.name WeiXia
+git checkout main
+git reset --hard origin/main
+git pull
+python manage.py migrate
+conda activate django
+python /home/xw/backend/manage.py runserver 0.0.0.0:8000
+(base) xw@VM-20-3-ubuntu:~/backend$ git config --global user.email 1114891937@qq
+.com
+(base) xw@VM-20-3-ubuntu:~/backend$ git config --global user.name WeiXia
+(base) xw@VM-20-3-ubuntu:~/backend$ git checkout main
+D       summer.db
+D       user/migrations/0001_initial.py
+D       user/migrations/0002_book.py
+D       user/migrations/0003_order.py
+D       user/migrations/0004_emailcode_user_delete_book_delete_order_and_more.py
+Already on 'main'
+Your branch is up to date with 'origin/main'.
+(base) xw@VM-20-3-ubuntu:~/backend$ git reset --hard origin/main
+HEAD is now at c69d039 服务器上的修改
+(base) xw@VM-20-3-ubuntu:~/backend$ git pull
+
+
