@@ -249,3 +249,17 @@ def my_team_list(request):
         dic['authority'] = C.trans(tu.authority)
         team_list.append(dic)
     return good_res('成功获取我所在的团队信息', {'list': team_list})
+
+
+@csrf_exempt
+def leave(request):
+    check = general_check(request, 'POST', ['teamID'], C.invited)
+    if not check['success']:
+        return check['res']
+    team = check['team']
+    user = check['user']
+    if get_user_auth(user, team) == C.founder:
+        return error_res('创建者不能退出团队')
+    tu = Team_User.objects.get(team=team, user=user)
+    tu.delete()
+    return good_res('已退出团队')

@@ -23,7 +23,13 @@ def get_params_by_list(request, arg_list):
     data_json = json.loads(request.body)
     result = {}
     for arg in arg_list:
-        result[str(arg)] = data_json[str(arg)]
+        if str(arg) in data_json:
+            if str(arg)[-1] == 'D' and str(arg)[-2] == 'I':
+                result[str(arg)] = int(data_json[str(arg)])
+            else:
+                result[str(arg)] = data_json[str(arg)]
+        else:
+            result[str(arg)] = None
     return result
 
 

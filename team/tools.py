@@ -6,7 +6,7 @@ from utils.params import lack_error_res, check_lack, get_params, get_params_by_l
 from utils.utils import get_user_id, get_user_auth
 
 def id_to_team(teamID):
-    assert isinstance(teamID, str)
+    assert isinstance(teamID, int)
     try:
         team = Team.objects.get(teamID=teamID)
     except:
