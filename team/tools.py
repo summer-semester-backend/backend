@@ -7,7 +7,10 @@ from utils.utils import get_user_id, get_user_auth
 
 def id_to_team(teamID):
     assert isinstance(teamID, str)
-    team = Team.objects.get(team_name=teamID)
+    try:
+        team = Team.objects.get(team_name=teamID)
+    except:
+        return None
     return team
 
 
@@ -40,6 +43,9 @@ def general_check(request, method, params, authority):
     # 获取本用户
     user = User.objects.get(userID=userID)
     team = id_to_team(vals['teamID'])
+    if team is None:
+        result['res'] = error_res('团队id不存在')
+        return result
     auth = get_user_auth(user, team)
     # 权限检查
     if auth < authority:

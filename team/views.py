@@ -95,8 +95,8 @@ def add_manager(request):
     if not check['success']:
         return check['res']
     team = check['team']
-    that_user_id = check['userID']
-    that_user = Team_User.objects.get(userID=check['userID'])
+    that_user_id = check['vals']['userID']
+    that_user = User.objects.get(userID=that_user_id)
     # 此用户必须是团队普通成员
     auth = get_user_auth(that_user, team)
     if auth == C.manager:
@@ -104,6 +104,8 @@ def add_manager(request):
     if auth != C.member:
         return error_res('此用户不是本团队的普通成员')
     tu = Team_User.objects.filter(user=that_user, team=team)
+    assert len(tu) == 1
+    tu = tu[0]
     tu.authority = C.manager
     tu.save()
     return good_res('成功将'+that_user.username+'设为管理员')
@@ -188,6 +190,8 @@ def delete_manager(request):
     if get_user_auth(that_user, team) != 1:
         return warning_res('用户'+that_user.username+'不是团队的管理员')
     tu = Team_User.objects.filter(user=that_user, team=team)
+    assert len(tu) == 1
+    tu = tu[0]
     tu.authority = C.member
     tu.save()
     return good_res('用户'+that_user.username+'已是普通成员')
