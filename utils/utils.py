@@ -31,6 +31,14 @@ def user_simple_info(user):
     return {'userID':user.userID, 'username':user.username, 'email':user.email}
 
 
+# def team_simple_info(team):
+#     return {
+#         'teamID': team.teamID,
+#         'teamName': team.team_name,
+#         'teamCreateTime': team.create_time,
+#     }
+
+
 # ------------------ token模块 -----------------------
 
 

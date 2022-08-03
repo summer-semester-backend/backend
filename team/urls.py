@@ -12,6 +12,7 @@ urlpatterns = [
     path('manager/delete', delete_manager),
     path('delete', delete_team),
     path('user/delete', delete_member),
+    path('list', my_team_list),
     # path('')
     # path('myTeams', my_team_list),
     # path('teamInfo', team_info),

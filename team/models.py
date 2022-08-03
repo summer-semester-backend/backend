@@ -27,9 +27,11 @@ class Team(models.Model):
     #     null=True,
     # )
 
-    def to_dic(self):
+    def info(self):
         return {
-            'team_name': self.team_name,
+            'teamID': int(self.teamID),
+            'teamName': self.team_name,
+            'createTime': str(self.create_time)[:10],
             'creator': self.creator.username,
         }
 
@@ -39,6 +41,20 @@ class C:
     manager = 1
     member = 0
     invited = -1
+
+    @staticmethod
+    def trans(auth):
+        if auth == C.founder:
+            return '创建者'
+        if auth == C.manager:
+            return '管理员'
+        if auth == C.member:
+            return '成员'
+        if auth == C.invited:
+            return '已被邀请'
+        print(auth)
+        assert '程序不应该' == '来到这里'
+
 
 class Team_User(models.Model):
     team = models.ForeignKey(

@@ -74,16 +74,24 @@ def get_users_info(request):
         return check['res']
     # user = check['user']
     team = check['team']
-    content = {'managerList': [], 'userList': [], 'invalidList': []}
-    founder = Team_User.objects.get(team=team, authority=C.founder)
-    content['managerList'].append(user_simple_info(founder.user))
-    manager_list = Team_User.objects.filter(team=team, authority=C.manager)
-    user_list = Team_User.objects.filter(team=team, authority=C.member)
-    invited_list = Team_User.objects.filter(team=team, authority=C.invited)
-    content['managerList'] += map(lambda x: user_simple_info(x.user), manager_list)
-    content['userList'] += map(lambda x: user_simple_info(x.user), user_list)
-    content['invalidList'] += map(lambda x: user_simple_info(x.user), invited_list)
-    return good_res('成功获取团队成员信息', content)
+    tu_list = Team_User.objects.filter(team=team)
+    userList = list(map(lambda tu: {
+        'username': tu.user.username,
+        'email': tu.user.email,
+        'userID': tu.user.userID,
+        'authority': tu.authority,
+    }, tu_list))
+    return good_res('成功获取团队列表', {'userList':userList})
+    # content = {'managerList': [], 'userList': [], 'invalidList': []}
+    # founder = Team_User.objects.get(team=team, authority=C.founder)
+    # content['managerList'].append(user_simple_info(founder.user))
+    # manager_list = Team_User.objects.filter(team=team, authority=C.manager)
+    # user_list = Team_User.objects.filter(team=team, authority=C.member)
+    # invited_list = Team_User.objects.filter(team=team, authority=C.invited)
+    # content['managerList'] += map(lambda x: user_simple_info(x.user), manager_list)
+    # content['userList'] += map(lambda x: user_simple_info(x.user), user_list)
+    # content['invalidList'] += map(lambda x: user_simple_info(x.user), invited_list)
+    # return good_res('成功获取团队成员信息', content)
 
 
 @csrf_exempt
@@ -128,7 +136,10 @@ def invite(request):
     team = check['team']
     email = check['vals']['email']
     that_user_id = check['vals']['userID']
-    that_user = User.objects.get(email=email)
+    try:
+        that_user = User.objects.get(email=email)
+    except:
+        return error_res('邮箱有问题')
     # 被邀请人现在不能在团队中
     auth = get_user_auth(that_user, team)
     if auth > C.invited:
@@ -223,3 +234,18 @@ def delete_member(request):
     tu = Team_User.objects.get(user=that_user, team=team)
     tu.delete()
     return good_res('已将用户'+that_user.username+'踢出')
+
+
+@csrf_exempt
+def my_team_list(request):
+    b, userID = get_user_id(request)
+    if not b:
+        return not_login_res()
+    user = User.objects.get(userID=userID)
+    tu_list = Team_User.objects.filter(user=user)
+    team_list = []
+    for tu in tu_list:
+        dic = tu.team.info()
+        dic['authority'] = C.trans(tu.authority)
+        team_list.append(dic)
+    return good_res('成功获取我所在的团队信息', {'list': team_list})
