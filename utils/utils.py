@@ -27,7 +27,8 @@ from team.models import Team, Team_User
 
 
 
-
+def user_simple_info(user):
+    return {'userID':user.userID, 'username':user.username, 'email':user.email}
 
 
 # ------------------ token模块 -----------------------

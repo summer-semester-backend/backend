@@ -8,7 +8,7 @@ from utils.utils import get_user_id, get_user_auth
 def id_to_team(teamID):
     assert isinstance(teamID, str)
     try:
-        team = Team.objects.get(team_name=teamID)
+        team = Team.objects.get(teamID=teamID)
     except:
         return None
     return team

@@ -11,7 +11,7 @@ from django.views.decorators.csrf import csrf_exempt
 from utils.responce import res, good_res, warning_res, error_res
 from utils.responce import method_err_res, not_login_res, bad_authority_res
 from utils.params import lack_error_res, check_lack, get_params
-from utils.utils import get_user_id, get_user_auth, random_str
+from utils.utils import get_user_id, get_user_auth, random_str, user_simple_info
 from .tools import general_check
 
 from django.core.mail import send_mail
@@ -66,9 +66,6 @@ def get_detail(request):
     })
 
 
-def simple_info(user):
-    return {'username':user.username, 'email':user.email}
-
 
 @csrf_exempt
 def get_users_info(request):
@@ -79,13 +76,13 @@ def get_users_info(request):
     team = check['team']
     content = {'managerList': [], 'userList': [], 'invalidList': []}
     founder = Team_User.objects.get(team=team, authority=C.founder)
-    content['managerList'].append(simple_info(founder.user))
+    content['managerList'].append(user_simple_info(founder.user))
     manager_list = Team_User.objects.filter(team=team, authority=C.manager)
     user_list = Team_User.objects.filter(team=team, authority=C.member)
     invited_list = Team_User.objects.filter(team=team, authority=C.invited)
-    content['managerList'] += map(lambda x: simple_info(x.user), manager_list)
-    content['userList'] += map(lambda x: simple_info(x.user), user_list)
-    content['invalidList'] += map(lambda x: simple_info(x.user), invited_list)
+    content['managerList'] += map(lambda x: user_simple_info(x.user), manager_list)
+    content['userList'] += map(lambda x: user_simple_info(x.user), user_list)
+    content['invalidList'] += map(lambda x: user_simple_info(x.user), invited_list)
     return good_res('成功获取团队成员信息', content)
 
 

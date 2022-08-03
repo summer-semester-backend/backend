@@ -8,7 +8,8 @@ from datetime import timedelta
 from backend import settings
 from datetime import date, timezone
 from utils.utils import *
-
+from utils.responce import *
+from utils.params import *
 
 @csrf_exempt
 def put(request):
@@ -286,3 +287,25 @@ def upload(request):
     else:
         result = {'result': 2, 'message': '前端炸了!'}
         return JsonResponse(result)
+
+
+
+
+
+@csrf_exempt
+def search(request):
+    params = get_params(request, 'nameOrEmail')
+    lack, lack_list = check_lack(params)
+    if lack:
+        return lack_error_res(lack_list)
+    user_list = User.objects.all()
+    count = 0
+    result = []
+    for user in user_list:
+        if count == 10:
+            break
+        if user.email.find(params['nameOrEmail']) != -1 or user.username.find(params['nameOrEmail']) != -1:
+            print(user.email.find(params['nameOrEmail']))
+            result.append(user_simple_info(user))
+            count += 1
+    return good_res('完成用户搜索', content={'userList': result})
