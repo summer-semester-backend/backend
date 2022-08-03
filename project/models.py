@@ -10,7 +10,9 @@ class Project(models.Model):
     project_image = models.CharField(max_length=50)
     project_name = models.CharField(max_length=50)
     create_time = models.DateTimeField(auto_now_add=True)
-    last_visit_time = models.DateTimeField(auto_now=True)
+    last_visit_time = models.DateTimeField()
+    abandon_time = models.DateTimeField()
+    is_active = models.ImageField(default=1)  # 1为可见,0为不可见（即在回收站）
     team = models.ForeignKey(
         Team,
         to_field='teamID',
