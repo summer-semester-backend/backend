@@ -9,7 +9,10 @@ def get_params(request, *args):
     result = {}
     for arg in args:
         if str(arg) in data_json:
-            result[str(arg)] = data_json[str(arg)]
+            if str(arg)[-1] == 'D' and str(arg)[-2] == 'I':
+                result[str(arg)] = int(data_json[str(arg)])
+            else:
+                result[str(arg)] = data_json[str(arg)]
         else:
             result[str(arg)] = None
     return result
