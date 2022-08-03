@@ -1,0 +1,110 @@
+git config --global user.email 1114891937@qq.com
+git config --global user.name WeiXia
+git checkout main
+git reset --hard origin/main
+git pull
+python manage.py migrate
+conda activate django
+python /home/xw/backend/manage.py runserver 0.0.0.0:8000
+(base) xw@VM-20-3-ubuntu:~/backend$ git config --global user.email 1114891937@qq
+.com
+(base) xw@VM-20-3-ubuntu:~/backend$ git config --global user.name WeiXia
+(base) xw@VM-20-3-ubuntu:~/backend$ git checkout main
+Already on 'main'
+Your branch is up to date with 'origin/main'.
+(base) xw@VM-20-3-ubuntu:~/backend$ git reset --hard origin/main
+HEAD is now at c69d039 服务器上的修改
+(base) xw@VM-20-3-ubuntu:~/backend$ git pull
+remote: Enumerating objects: 92, done.
+remote: Counting objects: 100% (73/73), done.
+remote: Compressing objects: 100% (29/29), done.
+remote: Total 92 (delta 48), reused 66 (delta 44), pack-reused 19
+Unpacking objects: 100% (92/92), 18.04 KiB | 101.00 KiB/s, done.
+From https://github.com/summer-semester-backend/backend
+   c69d039..40e1c66  main       -> origin/main
+   ba8ede6..40e1c66  dev        -> origin/dev
+Updating c69d039..40e1c66
+Fast-forward
+ .gitignore                                         |   3 +-
+ backend/__pycache__/settings.cpython-39.pyc        | Bin 3049 -> 3069 bytes
+ backend/__pycache__/urls.cpython-39.pyc            | Bin 1487 -> 1600 bytes
+ backend/settings.py                                |   1 +
+ backend/urls.py                                    |   5 +-
+ summer.db                                          | Bin 163840 -> 0 bytes
+ team/admin.py                                      |   4 +-
+ team/migrations/0001_initial.py                    |  35 ++++
+ team/migrations/0002_auto_20220802_1631.py         |  23 +++
+ team/migrations/0003_invitation.py                 |  24 +++
+ team/migrations/__init__.py                        |   0
+ team/models.py                                     |  61 +++---
+ team/tools.py                                      |  58 ++++++
+ team/urls.py                                       |  28 +++
+ team/views.py                                      | 226 ++++++++++++++++++++-
+ user/__pycache__/urls.cpython-39.pyc               | Bin 356 -> 292 bytes
+ user/__pycache__/views.cpython-39.pyc              | Bin 6872 -> 6872 bytes
+ user/migrations/0001_initial.py                    |  35 +++-
+ user/migrations/0002_book.py                       |  23 ---
+ user/migrations/0003_order.py                      |  22 --
+ ...lcode_user_delete_book_delete_order_and_more.py |  45 ----
+ .../__pycache__/0001_initial.cpython-39.pyc        | Bin 652 -> 0 bytes
+ .../__pycache__/0002_book.cpython-39.pyc           | Bin 635 -> 0 bytes
+ .../__pycache__/0003_order.cpython-39.pyc          | Bin 596 -> 0 bytes
+ user/models.py                                     |   6 +-
+ user/views.py                                      |  11 +-
+ utils/params.py                                    |  14 +-
+ utils/responce.py                                  |  22 +-
+ utils/utils.py                                     |  39 ++++
+ 29 files changed, 547 insertions(+), 138 deletions(-)
+ delete mode 100644 summer.db
+ create mode 100644 team/migrations/0001_initial.py
+ create mode 100644 team/migrations/0002_auto_20220802_1631.py
+ create mode 100644 team/migrations/0003_invitation.py
+ create mode 100644 team/migrations/__init__.py
+ create mode 100644 team/tools.py
+ create mode 100644 team/urls.py
+ delete mode 100644 user/migrations/0002_book.py
+ delete mode 100644 user/migrations/0003_order.py
+ delete mode 100644 user/migrations/0004_emailcode_user_delete_book_delete_order
+_and_more.py
+ delete mode 100644 user/migrations/__pycache__/0001_initial.cpython-39.pyc
+ delete mode 100644 user/migrations/__pycache__/0002_book.cpython-39.pyc
+ delete mode 100644 user/migrations/__pycache__/0003_order.cpython-39.pyc
+(base) xw@VM-20-3-ubuntu:~/backend$ python manage.py migrate
+Traceback (most recent call last):
+  File "manage.py", line 11, in main
+    from django.core.management import execute_from_command_line
+ModuleNotFoundError: No module named 'django'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "manage.py", line 22, in <module>
+    main()
+  File "manage.py", line 13, in main
+    raise ImportError(
+ImportError: Couldn't import Django. Are you sure it's installed and available o
+n your PYTHONPATH environment variable? Did you forget to activate a virtual env
+ironment?
+(base) xw@VM-20-3-ubuntu:~/backend$ conda activate django
+(django) xw@VM-20-3-ubuntu:~/backend$ python /home/xw/backend/manage.py runserve
+r 0.0.0.0:8000
+Watching for file changes with StatReloader
+Performing system checks...
+
+System check identified some issues:
+
+WARNINGS:
+?: (urls.W005) URL namespace 'user' isn't unique. You may not be able to reverse
+ all URLs in this namespace
+
+System check identified 1 issue (0 silenced).
+
+You have 22 unapplied migration(s). Your project may not work properly until you
+ apply the migrations for app(s): admin, auth, contenttypes, sessions, team, use
+r.
+Run 'python manage.py migrate' to apply them.
+August 03, 2022 - 10:15:19
+Django version 4.0.4, using settings 'backend.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
