@@ -309,3 +309,26 @@ def search(request):
             result.append(user_simple_info(user))
             count += 1
     return good_res('完成用户搜索', content={'userList': result})
+
+@csrf_exempt
+def update_ava(request):
+    if request.method != 'POST':
+        return method_err_res()
+    b, userID = get_user_id(request)
+    if not b:
+        return not_login_res()
+    # 获取信息，并检查是否缺项
+    vals = get_params(request, 'avatar')
+    vals['userID'] = userID
+    lack, lack_list = check_lack(vals)
+    if lack:
+        return lack_error_res(lack_list)
+    user=User.objects.get(userID=userID)
+    if vals['avatar']:
+        user.avatar=vals['avatar']
+        user.save()
+        result = {'result': 0, 'message': '上传成功!'}
+        return JsonResponse(result)
+    else:
+        result = {'result': 2, 'message': '请检查上传内容!'}
+        return JsonResponse(result)

@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
 from utils.responce import res, good_res, warning_res, error_res
@@ -7,11 +6,20 @@ from utils.params import lack_error_res, lack_check, get_params, get_params_by_l
 from utils.utils import get_user_id, get_user, get_user_auth, random_str, user_simple_info
 
 from .models import File, FType
-from team.models import Team, C
 
 from .tools import id_to_file, file_general_check
 from team.tools import id_to_team
-from user.tools import id_to_user
+
+import datetime
+from jwt import encode
+from user.models import User
+from team.models import Team, Team_User, C
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .models import FType, File
+from utils.responce import res, good_res, warning_res, error_res
+from utils.responce import method_err_res, not_login_res, bad_authority_res
+from utils.params import lack_error_res, lack_check, get_params
 
 
 @csrf_exempt
@@ -106,3 +114,153 @@ def write(request):
         file.data = vals['data']
     file.save()
     return good_res('文件修改已保存')
+
+
+@csrf_exempt
+def delete_file(request):
+    # 一般检查
+    if request.method != 'POST':
+        return method_err_res()
+    b, userID = get_user_id(request)
+    if not b:
+        return not_login_res()
+    vals = get_params(request, 'fileID')
+    vals['userID'] = userID
+    lack, lack_list = lack_check(vals)
+    if lack:
+        return lack_error_res(lack_list)
+    file_list = File.objects.filter(fileID=vals['fileID'])
+    if len(file_list) == 0:
+        return error_res('文件不存在')
+    file = File.objects.get(fileID=vals['fileID'])
+    if file.is_deleted == 1:
+        file.delete()
+    else:
+        file.is_deleted = 1
+        file.abandon_time = datetime.datetime.now()
+        file.save()
+    return res(0, '文件删除成功')
+
+
+@csrf_exempt
+def recover_file(request):
+    # 一般检查
+    if request.method != 'POST':
+        return method_err_res()
+    b, userID = get_user_id(request)
+    if not b:
+        return not_login_res()
+    vals = get_params(request, 'fileID')
+    vals['userID'] = userID
+    lack, lack_list = lack_check(vals)
+    if lack:
+        return lack_error_res(lack_list)
+    file_list = File.objects.filter(fileID=vals['fileID'])
+    if len(file_list) == 0:
+        return error_res('文件不存在')
+    file = File.objects.get(fileID=vals['fileID'])
+    if file.is_deleted == 0:
+        return res(2, '文件不存在')
+    else:
+        file.is_deleted = 0
+        file.save()
+    return res(0, '文件恢复成功')
+
+
+@csrf_exempt
+def project_last_visit(request):
+    # 一般检查
+    if request.method != 'POST':
+        return method_err_res()
+    b, userID = get_user_id(request)
+    if not b:
+        return not_login_res()
+    # 获取信息，并检查是否缺项
+    vals = get_params(request)
+    vals['userID'] = userID
+    lack, lack_list = lack_check(vals)
+    if lack:
+        return lack_error_res(lack_list)
+    user = User.objects.get(userID=userID)
+    team_list = Team_User.objects.filter(user=user)
+    project_list = []
+    for team in team_list:
+        if get_user_auth(user, team.team) >= 0:
+            project_list += File.objects.filter(team=team.team, type=1, is_deleted=0)
+    project_list = project_list.order_by('-last_visit_time')
+    result_list = []
+    for project in project_list[:4]:
+        if get_user_auth(user, project.team) >= 0:
+            content = {'fileID': project.fileID, 'fileName': project.file_name,
+                       'fileImage': project.file_image, 'createTime': project.create_time,
+                       'lastVisitTime': project.last_visit_time}
+            result_list.append(content)
+    content = {'list': result_list}
+    return res(0, '查询成功', content)
+
+
+@csrf_exempt
+def clear_bin(request):
+    # 一般检查
+    if request.method != 'POST':
+        return method_err_res()
+    b, userID = get_user_id(request)
+    if not b:
+        return not_login_res()
+    # 获取信息，并检查是否缺项
+    vals = get_params(request, 'fileID')
+    vals['userID'] = userID
+    lack, lack_list = lack_check(vals)
+    if lack:
+        user = User.objects.get(userID=userID)
+        team_list = Team_User.objects.filter(user=user)
+        project_list = []
+        for team in team_list:
+            if get_user_auth(user, team.team) >= 0:
+                project_list += File.objects.filter(team=team.team, type=1, is_deleted=1)
+        for project in project_list:
+            project.delete()
+        return res(0, '清空成功')
+    else:
+        file = File.objects.get(fileID=vals['fileID'])
+        file.delete()
+        return res(0, '清空成功')
+
+
+@csrf_exempt
+def bin_list(request):
+    # 一般检查
+    if request.method != 'POST':
+        return method_err_res()
+    b, userID = get_user_id(request, 'fileID')
+    if not b:
+        return not_login_res()
+    # 获取信息，并检查是否缺项
+    vals = get_params(request)
+    vals['userID'] = userID
+    lack, lack_list = lack_check(vals)
+    if lack:
+        user = User.objects.get(userID=userID)
+        team_list = Team_User.objects.filter(user=user)
+        project_list = []
+        for team in team_list:
+            if get_user_auth(user, team.team) >= 0:
+                project_list += File.objects.filter(team=team.team, type=1, is_deleted=1)
+        result_list = []
+        for project in project_list:
+            if get_user_auth(user, project.team) >= 0:
+                content = {'fileID': project.fileID, 'fileName': project.file_name,
+                           'abandonTime': project.abandon_time, 'teamName': project.team.team_name}
+                result_list.append(content)
+        content = {'list': result_list}
+        return res(0, '查询成功', content)
+    else:
+        file = File.objects.get(fileID=vals['fileID'])
+        file_list = File.objects.filter(father=file)
+        result_list = []
+        for file in file_list:
+            content = {'fileID': file.fileID, 'fileName': file.file_name,
+                       'abandonTime': file.abandon_time}
+            result_list.append(content)
+        content = {'list': result_list}
+        return res(0, '查询成功', content)

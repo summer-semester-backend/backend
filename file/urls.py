@@ -5,4 +5,9 @@ urlpatterns = [
     path('create', create),
     path('read', read),
     path('write', write),
+    path('delete', delete_file),
+    path('recover', recover_file),
+    path('recently', project_last_visit),
+    path('binList', bin_list),
+    path('clearBin', clear_bin),
 ]
