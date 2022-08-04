@@ -46,12 +46,12 @@ class File(models.Model):
         (FType.text, 'text'),
     ]
     type = models.IntegerField(choices=file_types)
+
     def deletable(self):
         return self.type >= FType.project
 
     def is_dir(self):
         return self.type <= FType.directory
-
 
     def info(self):
         """文件基本信息"""
@@ -74,4 +74,3 @@ class File(models.Model):
             return list(map(lambda x: x.info(), son_list))
         else:
             return {'data': self.data}
-

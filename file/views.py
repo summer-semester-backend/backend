@@ -1,5 +1,3 @@
-
-from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
 from utils.responce import res, good_res, warning_res, error_res
@@ -8,11 +6,20 @@ from utils.params import lack_error_res, lack_check, get_params, get_params_by_l
 from utils.utils import get_user_id, get_user, get_user_auth, random_str, user_simple_info
 
 from .models import File, FType
-from team.models import Team, C
 
 from .tools import id_to_file, file_general_check
 from team.tools import id_to_team
-from user.tools import id_to_user
+
+import datetime
+from jwt import encode
+from user.models import User
+from team.models import Team, Team_User, C
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .models import FType, File
+from utils.responce import res, good_res, warning_res, error_res
+from utils.responce import method_err_res, not_login_res, bad_authority_res
+from utils.params import lack_error_res, lack_check, get_params
 
 
 @csrf_exempt
@@ -93,21 +100,6 @@ def write(request):
     file.save()
     return good_res('文件修改已保存')
 
-import datetime
-from django.shortcuts import render
-from jwt import encode
-from user.models import User
-from team.models import Team, Team_User, C, Invitation
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from .models import FType, File
-from utils.responce import res, good_res, warning_res, error_res
-from utils.responce import method_err_res, not_login_res, bad_authority_res
-from utils.params import lack_error_res, check_lack, get_params
-from utils.utils import get_user_id, get_user_auth, random_str, user_simple_info
-from django.core.mail import send_mail
-from backend import settings
-
 
 @csrf_exempt
 def delete_file(request):
@@ -119,7 +111,7 @@ def delete_file(request):
         return not_login_res()
     vals = get_params(request, 'fileID')
     vals['userID'] = userID
-    lack, lack_list = check_lack(vals)
+    lack, lack_list = lack_check(vals)
     if lack:
         return lack_error_res(lack_list)
     file_list = File.objects.filter(fileID=vals['fileID'])
@@ -145,7 +137,7 @@ def recover_file(request):
         return not_login_res()
     vals = get_params(request, 'fileID')
     vals['userID'] = userID
-    lack, lack_list = check_lack(vals)
+    lack, lack_list = lack_check(vals)
     if lack:
         return lack_error_res(lack_list)
     file_list = File.objects.filter(fileID=vals['fileID'])
@@ -171,7 +163,7 @@ def project_last_visit(request):
     # 获取信息，并检查是否缺项
     vals = get_params(request)
     vals['userID'] = userID
-    lack, lack_list = check_lack(vals)
+    lack, lack_list = lack_check(vals)
     if lack:
         return lack_error_res(lack_list)
     user = User.objects.get(userID=userID)
@@ -203,7 +195,7 @@ def clear_bin(request):
     # 获取信息，并检查是否缺项
     vals = get_params(request, 'fileID')
     vals['userID'] = userID
-    lack, lack_list = check_lack(vals)
+    lack, lack_list = lack_check(vals)
     if lack:
         user = User.objects.get(userID=userID)
         team_list = Team_User.objects.filter(user=user)
@@ -231,7 +223,7 @@ def bin_list(request):
     # 获取信息，并检查是否缺项
     vals = get_params(request)
     vals['userID'] = userID
-    lack, lack_list = check_lack(vals)
+    lack, lack_list = lack_check(vals)
     if lack:
         user = User.objects.get(userID=userID)
         team_list = Team_User.objects.filter(user=user)
@@ -257,4 +249,3 @@ def bin_list(request):
             result_list.append(content)
         content = {'list': result_list}
         return res(0, '查询成功', content)
-
