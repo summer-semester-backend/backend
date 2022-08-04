@@ -11,6 +11,8 @@ def get_params(request, *args):
         if str(arg) in data_json:
             if str(arg)[-1] == 'D' and str(arg)[-2] == 'I':
                 result[str(arg)] = int(data_json[str(arg)])
+            elif str(arg)[-1] == 'e' and str(arg)[-2] == 'p':
+                result[str(arg)] = int(data_json[str(arg)])
             else:
                 result[str(arg)] = data_json[str(arg)]
         else:
@@ -32,6 +34,8 @@ def get_params_by_list(request, arg_list, optional_arg_list=None):
     for arg in arg_list:
         if str(arg) in data_json:
             if str(arg)[-1] == 'D' and str(arg)[-2] == 'I':
+                result[str(arg)] = int(data_json[str(arg)])
+            elif str(arg)[-1] == 'e' and str(arg)[-2] == 'p':
                 result[str(arg)] = int(data_json[str(arg)])
             else:
                 result[str(arg)] = data_json[str(arg)]
