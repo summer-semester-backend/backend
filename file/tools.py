@@ -6,7 +6,8 @@ from utils.responce import *
 from utils.params import *
 from team.models import *
 
-def file_general_check(request, method, params, authority=-100):
+
+def file_general_check(request, method, params, authority=-100, optional_params=None):
     """文件操作的各种检查
     如果有问题, 则返回内容为
     {
@@ -36,6 +37,8 @@ def file_general_check(request, method, params, authority=-100):
         - 如果是团队文件则需要本用户权限≥authority
         - 如果是个人文件则需要是creator
     """
+    if optional_params is None:
+        optional_params = []
     result = {'success': False}
     # 登录检查
     user = get_user(request)
@@ -43,15 +46,23 @@ def file_general_check(request, method, params, authority=-100):
         result['res'] = not_login_res()
         return result
     # 获取参数
-    vals = get_params_by_list(request, params)
+    vals = get_params_by_list(request, params, optional_arg_list=optional_params)
     lack, lack_list = lack_check(vals)
     if lack:
         result['res'] = lack_error_res(lack_list)
         return result
-    file = id_to_file(vals['fileID'])
+    if vals['fileID'] != -1:
+        file = id_to_file(vals['fileID'])
+    else:
+        if 'teamID' not in vals:
+            result.update({'res': error_res('fileID为-1的时候需要给出teamID')})
+            return result
+        team = Team.objects.get(teamID=vals['teamID'])
+        file = id_to_file(vals['fileID'], team=team)
     if file is None:
         result['res'] = error_res('找不到文件')
         return result
+    team = None
     # 权限检查
     if file.team is not None:
         team = file.team
@@ -61,13 +72,15 @@ def file_general_check(request, method, params, authority=-100):
             return result
     else:
         if file.file_creator.userID != user.userID:
-            return error_res('不能访问别人的个人文件')
+            result.update({'res', error_res('不能访问别人的个人文件')})
+            return result
     result['success'] = True
-    return result | {
+    result.update({
         'user': user,
         'file': file,
         'vals': vals,
-    }
+    })
+    return result
 
 
 def id_to_file(fileID, team=None, user=None):

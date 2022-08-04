@@ -16,6 +16,10 @@ from user.tools import id_to_user
 
 @csrf_exempt
 def create(request):
+    """
+    创建文件时, 如果给出不是-1的fatherID, 就无视teamID
+    如果fatherID是-1, 就认为
+    """
     # 登录检查
     user = get_user(request)
     if user is None:
@@ -26,6 +30,7 @@ def create(request):
         ['fileName', 'fileType', 'fileImage', 'fatherID'],
         ['teamID'],
     )
+    # print(params)
     lack, lack_list = lack_check(params)
     if lack:
         return lack_error_res(lack_list)
@@ -33,6 +38,7 @@ def create(request):
     team = None
     if 'teamID' in params:
         team = id_to_team(params['teamID'])
+    # print(team.info())
     # user = id_to_user(params['userID'])
     father = id_to_file(params['fatherID'], team, user)
     if father is None:
@@ -40,7 +46,7 @@ def create(request):
     file = File.objects.create(
         file_name=params['fileName'],
         type=params['fileType'],
-        fileImage=params['fileImage'],
+        file_image=params['fileImage'],
         father=father,
         file_creator=user,
     )
@@ -52,7 +58,13 @@ def create(request):
 
 @csrf_exempt
 def read(request):
-    check = file_general_check(request, 'POST', ['fileID'], C.member)
+    check = file_general_check(
+        request,
+        'POST',
+        ['fileID'],
+        C.member,
+        optional_params=['teamID']
+    )
     if not check['success']:
         return check['res']
     file = check['file']
@@ -62,8 +74,9 @@ def read(request):
     if file.is_dir():
         result = {'sonList': content}
     else:
-        result = {'data': content}
-    return good_res('成功读取文件', info | result)
+        result = content
+    info.update(result)
+    return good_res('成功读取文件', info)
 
 
 @csrf_exempt
@@ -86,6 +99,8 @@ def write(request):
         father = id_to_file(vals['fatherID'], file.team, file.file_creator)
         if father is None:
             return error_res('找不到父文件')
+        if not father.is_dir():
+            return error_res('父文件必须是文件夹')
         file.father = father
     if 'data' in vals:
         file.data = vals['data']
