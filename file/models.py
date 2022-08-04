@@ -61,8 +61,8 @@ class File(models.Model):
             'fileType': self.type,
             'fileImage': self.file_image,
             'fatherID': self.father.fileID if self.father is not None else '',
-            'teamName': self.team.teamID if self.team is not None else '',
-            'userName': self.file_creator.userID,
+            'teamName': self.team.team_name if self.team is not None else '',
+            'userName': self.file_creator.username,
             'createTime': self.create_time,
             'lastEditTime': self.last_visit_time,
         }

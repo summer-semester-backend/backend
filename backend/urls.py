@@ -24,7 +24,7 @@ urlpatterns = [
     path('api/user/', include(('user.urls', 'user'))),
     path('api/auth/', include(('user.urls', 'user'))),
     path('api/team/', include(('team.urls', 'team'))),
-    path('api/project/', include(('file.urls', 'file'))),
+    path('api/file/', include(('file.urls', 'file'))),
     path('api/upload', upload),
 ]
 

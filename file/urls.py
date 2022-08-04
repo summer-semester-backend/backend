@@ -10,4 +10,5 @@ urlpatterns = [
     path('recently', project_last_visit),
     path('binList', bin_list),
     path('clearBin', clear_bin),
+    path('all', all),
 ]
