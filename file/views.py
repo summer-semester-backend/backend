@@ -4,7 +4,7 @@ from utils.responce import res, good_res, warning_res, error_res
 from utils.responce import method_err_res, not_login_res, bad_authority_res
 from utils.params import lack_error_res, lack_check, get_params, get_params_by_list
 from utils.utils import get_user_id, get_user, get_user_auth, random_str, user_simple_info
-
+import json
 from .models import File, FType
 
 from .tools import id_to_file, file_general_check
@@ -181,10 +181,9 @@ def project_last_visit(request):
     project_list = []
     for team in team_list:
         if get_user_auth(user, team.team) >= 0:
-            project_list += File.objects.filter(team=team.team, type=1, is_deleted=0)
-    project_list = project_list.order_by('-last_visit_time')
-    result_list = []
-    for project in project_list[:4]:
+            project_list += File.objects.filter(team=team.team, type=1, is_deleted=0).order_by('-last_visit_time')
+    result_list=[]
+    for project in project_list[:6]:
         if get_user_auth(user, project.team) >= 0:
             content = {'fileID': project.fileID, 'fileName': project.file_name,
                        'fileImage': project.file_image, 'createTime': project.create_time,
@@ -202,11 +201,13 @@ def clear_bin(request):
     b, userID = get_user_id(request)
     if not b:
         return not_login_res()
-    # 获取信息，并检查是否缺项
-    vals = get_params(request, 'fileID')
-    vals['userID'] = userID
-    lack, lack_list = lack_check(vals)
-    if lack:
+    try:
+        data_json = json.loads(request.body)
+        fileID=int(data_json['fileID'])
+        file = File.objects.get(fileID=fileID)
+        file.delete()
+        return res(0, '清空成功')
+    except:
         user = User.objects.get(userID=userID)
         team_list = Team_User.objects.filter(user=user)
         project_list = []
@@ -216,10 +217,7 @@ def clear_bin(request):
         for project in project_list:
             project.delete()
         return res(0, '清空成功')
-    else:
-        file = File.objects.get(fileID=vals['fileID'])
-        file.delete()
-        return res(0, '清空成功')
+
 
 
 @csrf_exempt
@@ -227,14 +225,22 @@ def bin_list(request):
     # 一般检查
     if request.method != 'POST':
         return method_err_res()
-    b, userID = get_user_id(request, 'fileID')
+    b, userID = get_user_id(request)
     if not b:
         return not_login_res()
-    # 获取信息，并检查是否缺项
-    vals = get_params(request)
-    vals['userID'] = userID
-    lack, lack_list = lack_check(vals)
-    if lack:
+    try :
+        data_json = json.loads(request.body)
+        fileID=int(data_json['fileID'])
+        file = File.objects.get(fileID=fileID)
+        file_list = File.objects.filter(father=file)
+        result_list = []
+        for file in file_list:
+            content = {'fileID': file.fileID, 'fileName': file.file_name,
+                       'abandonTime': file.abandon_time}
+            result_list.append(content)
+        content = {'list': result_list}
+        return res(0, '查询成功', content)
+    except:
         user = User.objects.get(userID=userID)
         team_list = Team_User.objects.filter(user=user)
         project_list = []
@@ -249,13 +255,28 @@ def bin_list(request):
                 result_list.append(content)
         content = {'list': result_list}
         return res(0, '查询成功', content)
-    else:
-        file = File.objects.get(fileID=vals['fileID'])
-        file_list = File.objects.filter(father=file)
-        result_list = []
-        for file in file_list:
-            content = {'fileID': file.fileID, 'fileName': file.file_name,
-                       'abandonTime': file.abandon_time}
+
+
+@csrf_exempt
+def all(request):
+    # 一般检查
+    if request.method != 'POST':
+        return method_err_res()
+    b, userID = get_user_id(request)
+    if not b:
+        return not_login_res()
+    user = User.objects.get(userID=userID)
+    team_list = Team_User.objects.filter(user=user)
+    project_list = []
+    for team in team_list:
+        if get_user_auth(user, team.team) >= 0:
+            project_list += File.objects.filter(team=team.team, type=1, is_deleted=0)
+    result_list = []
+    for project in project_list:
+        if get_user_auth(user, project.team) >= 0:
+            content = {'fileID': project.fileID, 'fileName': project.file_name,
+                        'createTime': project.create_time, 'lastVisitTime': project.last_visit_time,'fileImage':project.file_image}
             result_list.append(content)
-        content = {'list': result_list}
-        return res(0, '查询成功', content)
+    content = {'list': result_list}
+    return res(0, '查询成功', content)
+

@@ -9,9 +9,9 @@ def get_params(request, *args):
     result = {}
     for arg in args:
         if str(arg) in data_json:
-            if str(arg)[-1] == 'D' and str(arg)[-2] == 'I':
+            if str(arg)[-1] == 'D' and str(arg)[-2] == 'I' and data_json[str(arg)]:
                 result[str(arg)] = int(data_json[str(arg)])
-            elif str(arg)[-1] == 'e' and str(arg)[-2] == 'p':
+            elif str(arg)[-1] == 'e' and str(arg)[-2] == 'p' and data_json[str(arg)]:
                 result[str(arg)] = int(data_json[str(arg)])
             else:
                 result[str(arg)] = data_json[str(arg)]
@@ -33,19 +33,19 @@ def get_params_by_list(request, arg_list, optional_arg_list=None):
     result = {}
     for arg in arg_list:
         if str(arg) in data_json:
-            if str(arg)[-1] == 'D' and str(arg)[-2] == 'I':
+            if str(arg)[-1] == 'D' and str(arg)[-2] == 'I' and data_json[str(arg)]:
                 result[str(arg)] = int(data_json[str(arg)])
-            elif str(arg)[-1] == 'e' and str(arg)[-2] == 'p':
+            elif str(arg)[-1] == 'e' and str(arg)[-2] == 'p' and data_json[str(arg)]:
                 result[str(arg)] = int(data_json[str(arg)])
-            else:
+            else :
                 result[str(arg)] = data_json[str(arg)]
         else:
             result[str(arg)] = None
     for arg in optional_arg_list:
         if str(arg) in data_json:
-            if str(arg)[-1] == 'D' and str(arg)[-2] == 'I':
+            if str(arg)[-1] == 'D' and str(arg)[-2] == 'I' and data_json[str(arg)]:
                 result[str(arg)] = int(data_json[str(arg)])
-            else:
+            elif data_json[str(arg)]:
                 result[str(arg)] = data_json[str(arg)]
     return result
 
