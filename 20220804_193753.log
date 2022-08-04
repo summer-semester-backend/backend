@@ -1,0 +1,58 @@
+git config --global user.email 1114891937@qq.com
+git config --global user.name WeiXia
+git checkout main
+git reset --hard origin/main
+git pull
+conda activate django
+python manage.py migrate
+python /home/xw/backend/manage.py runserver 0.0.0.0:8000
+(base) xw@VM-20-3-ubuntu:~/backend$ git config --global user.email 1114891937@qq
+.com
+(base) xw@VM-20-3-ubuntu:~/backend$ git config --global user.name WeiXia
+(base) xw@VM-20-3-ubuntu:~/backend$ git checkout main
+Already on 'main'
+Your branch is up to date with 'origin/main'.
+(base) xw@VM-20-3-ubuntu:~/backend$ git reset --hard origin/main
+HEAD is now at 73d8659 Merge branch 'main' of github.com:summer-semester-backend
+/backend into main
+(base) xw@VM-20-3-ubuntu:~/backend$ git pull
+remote: Enumerating objects: 5, done.
+remote: Counting objects: 100% (5/5), done.
+remote: Total 5 (delta 4), reused 5 (delta 4), pack-reused 0
+Unpacking objects: 100% (5/5), 466 bytes | 466.00 KiB/s, done.
+From https://github.com/summer-semester-backend/backend
+   73d8659..6e01451  main       -> origin/main
+Updating 73d8659..6e01451
+Fast-forward
+ file/admin.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+(base) xw@VM-20-3-ubuntu:~/backend$ conda activate django
+(django) xw@VM-20-3-ubuntu:~/backend$ python manage.py migrate
+System check identified some issues:
+
+WARNINGS:
+?: (urls.W005) URL namespace 'user' isn't unique. You may not be able to reverse
+ all URLs in this namespace
+Operations to perform:
+  Apply all migrations: admin, auth, contenttypes, file, sessions, team, user
+Running migrations:
+  Applying file.0001_initial... OK
+  Applying file.0002_file_abandon_time... OK
+  Applying team.0004_team_root_file... OK
+(django) xw@VM-20-3-ubuntu:~/backend$ python /home/xw/backend/manage.py runserve
+r 0.0.0.0:8000
+Watching for file changes with StatReloader
+Performing system checks...
+
+System check identified some issues:
+
+WARNINGS:
+?: (urls.W005) URL namespace 'user' isn't unique. You may not be able to reverse
+ all URLs in this namespace
+
+System check identified 1 issue (0 silenced).
+August 04, 2022 - 19:37:37
+Django version 4.0.4, using settings 'backend.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
