@@ -18,7 +18,7 @@ class File(models.Model):
     file_name = models.CharField(max_length=50)
     create_time = models.DateTimeField(auto_now_add=True)
     last_visit_time = models.DateTimeField(auto_now=True)
-    abandon_time = models.DateTimeField()
+    abandon_time = models.DateTimeField(null=True)
     team = models.ForeignKey(
         Team,
         to_field='teamID',
