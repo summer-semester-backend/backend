@@ -12,12 +12,39 @@ from django.views.decorators.csrf import csrf_exempt
 from utils.responce import res, good_res, warning_res, error_res
 from utils.responce import method_err_res, not_login_res, bad_authority_res
 from utils.params import lack_error_res, lack_check, get_params
-from utils.utils import get_user_id, get_user_auth, random_str, user_simple_info
+from utils.utils import get_user_id, get_user_auth, random_str, user_simple_info, get_user
 from .tools import general_check
 
 from django.core.mail import send_mail
 
 from backend import settings
+
+
+def create_team_implement(user, team_name, summary):
+    if len(team_name) == 0:
+        return error_res('团队名不可为空')
+    # 团队名不可重复
+    # team_list = Team.objects.filter(team_name=team_name)
+    # if len(team_list) > 0:
+    #     return error_res('团队名已存在')
+    root_file = File.objects.create(
+        file_creator=user,
+        file_image='',
+        file_name='root',
+        type=FType.root,
+    )
+    team = Team(
+        team_name=team_name,
+        creator=user,
+        summary=summary,
+        root_file=root_file
+    )
+    team.save()
+    root_file.team = team
+    root_file.save()
+    Team_User.objects.create(user=user, team=team, authority=2)
+    return res(0, '成功创建团队', {'teamID': team_name})
+
 
 
 @csrf_exempt
@@ -42,24 +69,11 @@ def create_team(request):
     if len(team_list) > 0:
         return error_res('团队名已存在')
     # 获取本用户
-    user = User.objects.get(userID=vals['userID'])
-    root_file = File.objects.create(
-        file_creator=user,
-        file_image='',
-        file_name='root',
-        type=FType.root,
-    )
-    team = Team(
-        team_name=vals['teamname'],
-        creator=user,
-        summary=vals['summary'],
-        root_file=root_file
-    )
-    team.save()
-    root_file.team = team
-    root_file.save()
-    Team_User.objects.create(user=user, team=team, authority=2)
-    return res(0, '成功创建团队', {'teamID': vals['teamname']})
+    user = get_user(request)
+    if user is None:
+        return error_res('找不到本用户?')
+    return create_team_implement(user, vals['teamname'], vals['summary'])
+
 
 
 @csrf_exempt

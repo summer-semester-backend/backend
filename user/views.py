@@ -10,6 +10,8 @@ from datetime import date, timezone
 from utils.utils import *
 from utils.responce import *
 from utils.params import *
+from team.views import create_team_implement
+
 
 @csrf_exempt
 def put(request):
@@ -87,6 +89,7 @@ def register(request):
             count = len(users)
             new_user = User(userID=count, username=username, nickname=nickname, password=password, email=email)
             new_user.save()
+            create_team_implement(new_user, new_user.username+'的团队', '为新用户自动创建')
         return JsonResponse({'result': 0, 'message': "注册成功!"})
     else:
         return JsonResponse({'result': 2, 'message': "前端炸了!"})
