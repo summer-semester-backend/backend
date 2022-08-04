@@ -13,6 +13,7 @@ from utils.params import *
 from team.views import create_team_implement
 
 
+
 @csrf_exempt
 def put(request):
     if request.method == 'PUT':
@@ -292,9 +293,6 @@ def upload(request):
         return JsonResponse(result)
 
 
-
-
-
 @csrf_exempt
 def search(request):
     params = get_params(request, 'nameOrEmail')
@@ -313,6 +311,7 @@ def search(request):
             count += 1
     return good_res('完成用户搜索', content={'userList': result})
 
+
 @csrf_exempt
 def update_ava(request):
     if request.method != 'POST':
@@ -323,12 +322,12 @@ def update_ava(request):
     # 获取信息，并检查是否缺项
     vals = get_params(request, 'avatar')
     vals['userID'] = userID
-    lack, lack_list = check_lack(vals)
+    lack, lack_list = lack_check(vals)
     if lack:
         return lack_error_res(lack_list)
-    user=User.objects.get(userID=userID)
+    user = User.objects.get(userID=userID)
     if vals['avatar']:
-        user.avatar=vals['avatar']
+        user.avatar = vals['avatar']
         user.save()
         result = {'result': 0, 'message': '上传成功!'}
         return JsonResponse(result)
