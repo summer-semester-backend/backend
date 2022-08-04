@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 
 from pathlib import Path
 import os
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -38,7 +39,7 @@ INSTALLED_APPS = [
     'user',
     'team',
     'corsheaders',
-    'project'
+    'file',
 ]
 
 MIDDLEWARE = [
@@ -133,7 +134,7 @@ EMAIL_USE_TLS = False  # 与SMTP服务器通信时,是否启用安全模式
 CORS_ALLOW_CREDENTIALS = True  # 允许携带cookie
 CORS_ORIGIN_ALLOW_ALL = True  # 允许所有源访问
 CORS_ORIGIN_WHITELIST = (
-    'http://127.0.0.1:8000',    #设置白名单
+    'http://127.0.0.1:8000',  # 设置白名单
     'http://localhost:8000',
 )
 
