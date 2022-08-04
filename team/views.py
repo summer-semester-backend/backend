@@ -56,6 +56,8 @@ def create_team(request):
         root_file=root_file
     )
     team.save()
+    root_file.team = team
+    root_file.save()
     Team_User.objects.create(user=user, team=team, authority=2)
     return res(0, '成功创建团队', {'teamID': vals['teamname']})
 
