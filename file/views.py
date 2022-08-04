@@ -176,11 +176,6 @@ def project_last_visit(request):
     if not b:
         return not_login_res()
     # 获取信息，并检查是否缺项
-    vals = get_params(request)
-    vals['userID'] = userID
-    lack, lack_list = lack_check(vals)
-    if lack:
-        return lack_error_res(lack_list)
     user = User.objects.get(userID=userID)
     team_list = Team_User.objects.filter(user=user)
     project_list = []
