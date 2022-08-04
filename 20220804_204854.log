@@ -1,0 +1,50 @@
+git config --global user.email 1114891937@qq.com
+git config --global user.name WeiXia
+git checkout main
+git reset --hard origin/main
+git pull
+conda activate django
+python manage.py migrate
+python /home/xw/backend/manage.py runserver 0.0.0.0:8000
+(base) xw@VM-20-3-ubuntu:~/backend$ git config --global user.email 1114891937@qq
+.com
+(base) xw@VM-20-3-ubuntu:~/backend$ git config --global user.name WeiXia
+(base) xw@VM-20-3-ubuntu:~/backend$ git checkout main
+Already on 'main'
+Your branch is up to date with 'origin/main'.
+(base) xw@VM-20-3-ubuntu:~/backend$ git reset --hard origin/main
+HEAD is now at 1ea4fbe Merge branch 'dev'
+(base) xw@VM-20-3-ubuntu:~/backend$ git pull
+Already up to date.
+(base) xw@VM-20-3-ubuntu:~/backend$ conda activate django
+(django) xw@VM-20-3-ubuntu:~/backend$ python manage.py migrate
+System check identified some issues:
+
+WARNINGS:
+?: (urls.W005) URL namespace 'user' isn't unique. You may not be able to reverse
+ all URLs in this namespace
+Operations to perform:
+  Apply all migrations: admin, auth, contenttypes, file, sessions, team, user
+Running migrations:
+  No migrations to apply.
+  Your models in app(s): 'team' have changes that are not yet reflected in a mig
+ration, and so won't be applied.
+  Run 'manage.py makemigrations' to make new migrations, and then re-run 'manage
+.py migrate' to apply them.
+(django) xw@VM-20-3-ubuntu:~/backend$ python /home/xw/backend/manage.py runserve
+r 0.0.0.0:8000
+Watching for file changes with StatReloader
+Performing system checks...
+
+System check identified some issues:
+
+WARNINGS:
+?: (urls.W005) URL namespace 'user' isn't unique. You may not be able to reverse
+ all URLs in this namespace
+
+System check identified 1 issue (0 silenced).
+August 04, 2022 - 20:48:36
+Django version 4.0.4, using settings 'backend.settings'
+Starting development server at http://0.0.0.0:8000/
+Quit the server with CONTROL-C.
+
