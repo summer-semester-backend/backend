@@ -2,7 +2,7 @@ from .models import Team, Team_User, C
 from user.models import User
 from utils.responce import res, good_res, warning_res, error_res
 from utils.responce import method_err_res, not_login_res, bad_authority_res
-from utils.params import lack_error_res, check_lack, get_params, get_params_by_list
+from utils.params import lack_error_res, lack_check, get_params, get_params_by_list
 from utils.utils import get_user_id, get_user_auth
 
 def id_to_team(teamID):
@@ -14,7 +14,7 @@ def id_to_team(teamID):
     return team
 
 
-def general_check(request, method, params, authority):
+def general_check(request, method, params, authority, optional_params=None):
     """团队操作的各种检查, 如果检查无误则返回参数dict 用户对象 团队对象
     request 传入的请求
     method 希望的请求方法
@@ -36,10 +36,15 @@ def general_check(request, method, params, authority):
     # 获取信息，并检查是否缺项
     vals = get_params_by_list(request, params)
     # vals['userID'] = userID
-    lack, lack_list = check_lack(vals)
+    lack, lack_list = lack_check(vals)
     if lack:
         result['res'] = lack_error_res(lack_list)
         return result
+    optional_vals = {}
+    if optional_params is not None:
+        optional_vals = get_params_by_list(request, optional_params)
+    for key in optional_vals:
+        vals[key] = optional_vals[key]
     # 获取本用户
     user = User.objects.get(userID=userID)
     team = id_to_team(vals['teamID'])

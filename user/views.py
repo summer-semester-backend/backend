@@ -295,7 +295,7 @@ def upload(request):
 @csrf_exempt
 def search(request):
     params = get_params(request, 'nameOrEmail')
-    lack, lack_list = check_lack(params)
+    lack, lack_list = lack_check(params)
     if lack:
         return lack_error_res(lack_list)
     user_list = User.objects.all()

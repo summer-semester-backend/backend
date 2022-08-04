@@ -23,6 +23,7 @@ class File(models.Model):
         Team,
         to_field='teamID',
         on_delete=models.CASCADE,
+        null=True,
     )
     father = models.ForeignKey(
         'File',
@@ -45,10 +46,32 @@ class File(models.Model):
         (FType.text, 'text'),
     ]
     type = models.IntegerField(choices=file_types)
-
     def deletable(self):
         return self.type >= FType.project
 
     def is_dir(self):
         return self.type <= FType.directory
+
+
+    def info(self):
+        """文件基本信息"""
+        return {
+            'fileID': self.fileID,
+            'fileName': self.file_name,
+            'fileType': self.type,
+            'fileImage': self.file_image,
+            'fatherID': self.father.fileID if self.father is not None else '',
+            'teamName': self.team.teamID if self.team is not None else '',
+            'userName': self.file_creator.userID,
+            'createTime': self.create_time,
+            'lastEditTime': self.last_visit_time,
+        }
+
+    def content(self):
+        """文件夹下属文件信息, 或文件数据"""
+        if self.is_dir():
+            son_list = File.objects.filter(father=self)
+            return list(map(lambda x: x.info(), son_list))
+        else:
+            return {'data': self.data}
 

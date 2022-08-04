@@ -18,7 +18,14 @@ def get_params(request, *args):
     return result
 
 
-def get_params_by_list(request, arg_list):
+def get_params_by_list(request, arg_list, optional_arg_list=None):
+    """以列表形式获取参数
+    - request: 请求
+    - arg_list: 必须携带的参数
+    - optional_arg_list: 可选的参数
+    """
+    if optional_arg_list is None:
+        optional_arg_list = []
     assert isinstance(request, HttpRequest)
     data_json = json.loads(request.body)
     result = {}
@@ -30,11 +37,17 @@ def get_params_by_list(request, arg_list):
                 result[str(arg)] = data_json[str(arg)]
         else:
             result[str(arg)] = None
+    for arg in optional_arg_list:
+        if str(arg) in data_json:
+            if str(arg)[-1] == 'D' and str(arg)[-2] == 'I':
+                result[str(arg)] = int(data_json[str(arg)])
+            else:
+                result[str(arg)] = data_json[str(arg)]
     return result
 
 
 # 检查一个字典中是否有none
-def check_lack(obj_dic):
+def lack_check(obj_dic):
     lack_list = []
     for key, obj in obj_dic.items():
         if obj is None:

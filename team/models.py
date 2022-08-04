@@ -20,6 +20,12 @@ class Team(models.Model):
         max_length=65536,
         default=''
     )
+    root_file = models.ForeignKey(
+        'file.File',
+        on_delete=models.CASCADE,
+        related_name='xx',
+        null=True,
+    )
     # team_root_file = models.ForeignKey(
     #     'file.File',
     #     on_delete=models.CASCADE,

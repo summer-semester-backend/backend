@@ -5,12 +5,13 @@ from jwt import encode
 
 from user.models import User
 from .models import Team, Team_User, C, Invitation
+from file.models import File, FType
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
 from utils.responce import res, good_res, warning_res, error_res
 from utils.responce import method_err_res, not_login_res, bad_authority_res
-from utils.params import lack_error_res, check_lack, get_params
+from utils.params import lack_error_res, lack_check, get_params
 from utils.utils import get_user_id, get_user_auth, random_str, user_simple_info
 from .tools import general_check
 
@@ -30,7 +31,7 @@ def create_team(request):
     # 获取信息，并检查是否缺项
     vals = get_params(request, 'teamname', 'summary')
     vals['userID'] = userID
-    lack, lack_list = check_lack(vals)
+    lack, lack_list = lack_check(vals)
     if lack:
         return lack_error_res(lack_list)
     # 团队名不可为空
@@ -42,11 +43,17 @@ def create_team(request):
         return error_res('团队名已存在')
     # 获取本用户
     user = User.objects.get(userID=vals['userID'])
+    root_file = File.objects.create(
+        file_creator=user,
+        file_image='',
+        file_name='root',
+        type=FType.root,
+    )
     team = Team(
         team_name=vals['teamname'],
         creator=user,
         summary=vals['summary'],
-        # team_root_file=root_file
+        root_file=root_file
     )
     team.save()
     Team_User.objects.create(user=user, team=team, authority=2)

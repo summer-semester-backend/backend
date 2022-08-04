@@ -64,6 +64,16 @@ def get_user_id(request):
         return False, JsonResponse(result)
     return True, userID
 
+def get_user(request):
+    success, id = get_user_id(request)
+    if not success:
+        return None
+    try:
+        user = User.objects.get(userID=id)
+    except:
+        return None
+    return user
+
 
 
 
