@@ -7,7 +7,7 @@ from user.models import User
 
 
 class Team(models.Model):
-    teamID = models.AutoField(primary_key=True, editable=False)
+    teamID = models.AutoField(primary_key=True, editable=False, verbose_name='团队ID')
     team_name = models.CharField(max_length=50)
     team_avatar = models.ImageField(upload_to='team_avatar')
     create_time = models.DateTimeField(auto_now_add=True)
