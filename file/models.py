@@ -72,6 +72,7 @@ class File(models.Model):
         """文件夹下属文件信息, 或文件数据"""
         if self.is_dir():
             son_list = File.objects.filter(father=self)
-            return list(map(lambda x: x.info(), son_list))
+            return [x.info() for x in son_list if not x.is_deleted]
+            # return list(map(lambda x: x.info(), son_list))
         else:
             return {'data': self.data}
