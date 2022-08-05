@@ -192,13 +192,13 @@ def project_last_visit(request):
     ss = []
     for project in project_list:
         if get_user_auth(user, project.team) >= 0:
-            s = project.strftime("%Y-%m-%d-%H")
+            s = project.last_visit_time.strftime("%Y-%m-%d-%H")
             content = {'fileID': project.fileID, 'fileName': project.file_name,
                        'fileImage': project.file_image, 'createTime': project.create_time,
                        'lastVisitTime': project.last_visit_time, 'teamName': project.team.team_name,
-                       'userName': project.user.username, 's': s}
+                       'userName': project.file_creator.username, 's': s}
             ss.append(content)
-    ss.sort(key=lambda s: s["name"], reverse=True)
+    ss.sort(key=lambda s: s["s"], reverse=True)
     for project in ss[:6]:
         result_list.append(project)
     content = {'list': result_list}
@@ -288,7 +288,7 @@ def all(request):
             content = {'fileID': project.fileID, 'fileName': project.file_name,
                        'createTime': project.create_time, 'lastVisitTime': project.last_visit_time,
                        'fileImage': project.file_image, 'teamName': project.team.team_name,
-                       'userName': project.user.username}
+                       'userName': project.file_creator.username}
             result_list.append(content)
     content = {'list': result_list}
     return res(0, '查询成功', content)
