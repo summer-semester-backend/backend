@@ -218,8 +218,11 @@ def delete_manager(request):
     that_user_id = check['vals']['userID']
     that_user = User.objects.get(userID=that_user_id)
     # 此用户必须为团队管理员
-    if get_user_auth(that_user, team) != 1:
-        return warning_res('用户'+that_user.username+'不是团队的管理员')
+    if get_user_auth(that_user, team) == 2 :
+        return warning_res('项目创建者无法取消管理员身份')
+    if get_user_auth(that_user, team) != 1 :
+        result = {'result': 0, 'message': ''}
+        return JsonResponse(result)
     tu = Team_User.objects.filter(user=that_user, team=team)
     assert len(tu) == 1
     tu = tu[0]

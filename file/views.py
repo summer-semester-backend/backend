@@ -55,7 +55,7 @@ def create(request):
     params['fileType'] = int(params['fileType'])
     if params['fileType'] not in FType.available_list:
         return error_res(str(params['fileType']) + '不是任何类型')
-    if params['fileImage'] == "":
+    if params['fileImage'] == "" and params['fileType'] ==1 :
         params['fileImage'] = "http://43.138.77.8:8000/media/image/20220805/20220805220731_38.png"
     file = File.objects.create(
         file_name=params['fileName'],
