@@ -13,59 +13,6 @@ from utils.params import *
 from team.views import create_team_implement
 
 
-
-@csrf_exempt
-def put(request):
-    if request.method == 'PUT':
-        a = QueryDict(request.body)
-        s = list(a.items())[0][0]
-        print(s)
-        print(type(s))
-        data_json = json.loads(request.body)
-        print(data_json)
-        key = data_json['key']
-        field = data_json['field']
-        print(key, field)
-        result = {'result': 0, 'message': '前端炸了!'}
-        return JsonResponse(result)
-
-
-@csrf_exempt
-def delete(request):
-    if request.method == 'DELETE':
-        a = QueryDict(request.body)
-        s = list(a.items())[0][0]
-        print(s)
-        print(type(s))
-        data_json = json.loads(request.body)
-        print(data_json)
-        key = data_json['key']
-        field = data_json['field']
-        print(key, field)
-        result = {'result': 0, 'message': '前端炸了!'}
-        return JsonResponse(result)
-
-
-@csrf_exempt
-def get(request):
-    if request.method == 'GET':
-        key = request.GET.get('key')
-        field = request.GET.get('field')
-        print(key, field)
-        result = {'result': 0, 'message': '前端炸了!'}
-        return JsonResponse(result)
-
-
-@csrf_exempt
-def post(request):
-    if request.method == 'POST':
-        key = request.POST.get('key')
-        field = request.POST.get('field')
-        print(key, field)
-        result = {'result': 0, 'message': '前端炸了!'}
-        return JsonResponse(result)
-
-
 @csrf_exempt
 def register(request):
     if request.method == 'POST':
@@ -76,24 +23,19 @@ def register(request):
         nickname = data_json.get('nickname')
         if not nickname:
             nickname = username
-        # code = data_json.get('code')
-        x = User.objects.filter(email=email)
-        if len(x) > 0:
-            return error_res('邮箱已存在')
+        code = data_json.get('code')
         if User.objects.filter(email=email).exists():
             return JsonResponse({'result': 2, 'message': "邮箱已注册!"})
         else:
-            # if not EmailCode.objects.filter(code=code).exists():
-            #     return JsonResponse({'result': 2, 'message': "验证码错误!"})
-            # email_code = EmailCode.objects.get(code=code)
-            # now = datetime.datetime.now(timezone.utc)
-            # if (now - email_code.time).seconds > 300:
-            #     return JsonResponse({'result': 2, 'message': "验证码已失效!"})
-            users = User.objects.all()
-            count = len(users)
-            new_user = User(userID=count, username=username, nickname=nickname, password=password, email=email)
+            if not EmailCode.objects.filter(code=code).exists():
+                return JsonResponse({'result': 2, 'message': "验证码错误!"})
+            email_code = EmailCode.objects.get(code=code)
+            now = datetime.datetime.now(timezone.utc)
+            if (now - email_code.time).seconds > 300:
+                return JsonResponse({'result': 2, 'message': "验证码已失效!"})
+            new_user = User(username=username, nickname=nickname, password=password, email=email)
             new_user.save()
-            create_team_implement(new_user, new_user.username+'的团队', '为新用户自动创建')
+            create_team_implement(new_user, new_user.username + '的团队', '为新用户自动创建')
         return JsonResponse({'result': 0, 'message': "注册成功!"})
     else:
         return JsonResponse({'result': 2, 'message': "前端炸了!"})

@@ -9,7 +9,7 @@ from utils.storage import *
 
 
 class User(models.Model):
-    userID = models.IntegerField(primary_key=True, verbose_name='用户ID')
+    userID = models.AutoField(primary_key=True, editable=False)
     email = models.EmailField(verbose_name='邮箱', blank=False)
     username = models.CharField(max_length=25, null=True, verbose_name='真实姓名')
     nickname = models.CharField(max_length=25, null=True, verbose_name='昵称')
