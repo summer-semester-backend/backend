@@ -10,6 +10,7 @@ class FType:
     uml = 12
     prototype = 13
     text = 14
+    available_list = [root, project, directory, uml, prototype, text]
 
 
 class File(models.Model):

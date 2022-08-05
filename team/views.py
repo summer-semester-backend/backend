@@ -153,12 +153,12 @@ def change_team_info(request):
 
 @csrf_exempt
 def invite(request):
-    check = general_check(request, 'POST', ['teamID', 'userID', 'email'], C.manager)
+    check = general_check(request, 'POST', ['teamID', 'email'], C.manager)
     if not check['success']:
         return check['res']
     team = check['team']
     email = check['vals']['email']
-    that_user_id = check['vals']['userID']
+    # that_user_id = check['vals']['userID']
     try:
         that_user = User.objects.get(email=email)
     except:
