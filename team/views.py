@@ -43,7 +43,7 @@ def create_team_implement(user, team_name, summary):
     root_file.team = team
     root_file.save()
     Team_User.objects.create(user=user, team=team, authority=2)
-    return res(0, '成功创建团队', {'teamID': team_name})
+    return res(0, '成功创建团队', {'teamID': team.teamID})
 
 
 
