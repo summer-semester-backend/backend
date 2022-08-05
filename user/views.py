@@ -76,16 +76,19 @@ def register(request):
         nickname = data_json.get('nickname')
         if not nickname:
             nickname = username
-        code = data_json.get('code')
+        # code = data_json.get('code')
+        x = User.objects.filter(email=email)
+        if len(x) > 0:
+            return error_res('邮箱已存在')
         if User.objects.filter(email=email).exists():
             return JsonResponse({'result': 2, 'message': "邮箱已注册!"})
         else:
-            if not EmailCode.objects.filter(code=code).exists():
-                return JsonResponse({'result': 2, 'message': "验证码错误!"})
-            email_code = EmailCode.objects.get(code=code)
-            now = datetime.datetime.now(timezone.utc)
-            if (now - email_code.time).seconds > 300:
-                return JsonResponse({'result': 2, 'message': "验证码已失效!"})
+            # if not EmailCode.objects.filter(code=code).exists():
+            #     return JsonResponse({'result': 2, 'message': "验证码错误!"})
+            # email_code = EmailCode.objects.get(code=code)
+            # now = datetime.datetime.now(timezone.utc)
+            # if (now - email_code.time).seconds > 300:
+            #     return JsonResponse({'result': 2, 'message': "验证码已失效!"})
             users = User.objects.all()
             count = len(users)
             new_user = User(userID=count, username=username, nickname=nickname, password=password, email=email)
