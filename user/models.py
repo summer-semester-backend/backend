@@ -13,12 +13,12 @@ class User(models.Model):
     email = models.EmailField(verbose_name='邮箱', blank=False)
     username = models.CharField(max_length=25, null=True, verbose_name='真实姓名')
     nickname = models.CharField(max_length=25, null=True, verbose_name='昵称')
-    password = models.CharField(max_length=50, verbose_name='密码')
+    password = models.CharField(max_length=1000, verbose_name='密码')
     sex = models.IntegerField(blank=True, null=True, verbose_name='性别')
     age = models.IntegerField(blank=True, null=True, verbose_name='年龄')
     avatar = models.CharField(max_length=50, blank=True, null=True, verbose_name='头像地址')
     phone = models.CharField(max_length=25, null=True, verbose_name='电话')
-    summary = models.CharField(max_length=100, null=True, verbose_name='个人资料')
+    summary = models.CharField(max_length=1000, null=True, verbose_name='个人资料')
 
 
 class EmailCode(models.Model):

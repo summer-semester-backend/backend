@@ -31,7 +31,8 @@ def method_err_res():
 
 
 def not_login_res():
-    return error_res('用户未登录')
+    r = {'result': 10, 'message': 'Token有误！'}
+    return JsonResponse(r)
 
 
 def bad_authority_res(want_to_do_what):

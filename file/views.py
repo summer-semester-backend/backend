@@ -55,6 +55,8 @@ def create(request):
     params['fileType'] = int(params['fileType'])
     if params['fileType'] not in FType.available_list:
         return error_res(str(params['fileType']) + '不是任何类型')
+    if params['fileImage'] == "":
+        params['fileImage'] = "http://43.138.77.8:8000/media/image/20220805/20220805220731_38.png"
     file = File.objects.create(
         file_name=params['fileName'],
         type=params['fileType'],
@@ -187,13 +189,18 @@ def project_last_visit(request):
         if get_user_auth(user, team.team) >= 0:
             project_list += File.objects.filter(team=team.team, type=1, is_deleted=0).order_by('-last_visit_time')
     result_list = []
-    for project in project_list[:6]:
+    ss = []
+    for project in project_list:
         if get_user_auth(user, project.team) >= 0:
+            s = project.strftime("%Y-%m-%d-%H")
             content = {'fileID': project.fileID, 'fileName': project.file_name,
                        'fileImage': project.file_image, 'createTime': project.create_time,
                        'lastVisitTime': project.last_visit_time, 'teamName': project.team.team_name,
-                       'userName': project.user.username}
-            result_list.append(content)
+                       'userName': project.user.username, 's': s}
+            ss.append(content)
+    ss.sort(key=lambda s: s["name"], reverse=True)
+    for project in ss[:6]:
+        result_list.append(project)
     content = {'list': result_list}
     return res(0, '查询成功', content)
 
@@ -280,7 +287,8 @@ def all(request):
         if get_user_auth(user, project.team) >= 0:
             content = {'fileID': project.fileID, 'fileName': project.file_name,
                        'createTime': project.create_time, 'lastVisitTime': project.last_visit_time,
-                       'fileImage': project.file_image}
+                       'fileImage': project.file_image, 'teamName': project.team.team_name,
+                       'userName': project.user.username}
             result_list.append(content)
     content = {'list': result_list}
     return res(0, '查询成功', content)

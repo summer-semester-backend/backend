@@ -33,7 +33,8 @@ def register(request):
             now = datetime.datetime.now(timezone.utc)
             if (now - email_code.time).seconds > 300:
                 return JsonResponse({'result': 2, 'message': "验证码已失效!"})
-            new_user = User(username=username, nickname=nickname, password=password, email=email)
+            new_user = User(username=username, nickname=nickname, password=password, email=email,
+                            avatar="http://43.138.77.8:8000/media/image/20220805/20220805223719_68.png")
             new_user.save()
             create_team_implement(new_user, new_user.username + '的团队', '为新用户自动创建')
         return JsonResponse({'result': 0, 'message': "注册成功!"})
@@ -147,7 +148,7 @@ def password_change(request):
         token = request.META.get('HTTP_AUTHORIZATION', 0)
         userID = check_token(token)
         if userID == -1:
-            result = {'result': 2, 'message': 'Token有误!'}
+            result = {'result': 10, 'message': 'Token有误!'}
             return JsonResponse(result)
         password = data_json.get('password')
         n_password = data_json.get('newPassword')
@@ -172,7 +173,7 @@ def update(request):  # 修改用户基础信息
         token = request.META.get('HTTP_AUTHORIZATION', 0)
         userID = check_token(token)
         if userID == -1:
-            result = {'result': 2, 'message': 'Token有误!'}
+            result = {'result': 10, 'message': 'Token有误!'}
             return JsonResponse(result)
         user = User.objects.get(userID=userID)
         user.sex = int(data_json.get('sex'))
@@ -206,7 +207,7 @@ def get_user(request):
         token = request.META.get('HTTP_AUTHORIZATION', 0)
         userID = check_token(token)
         if userID == -1:
-            result = {'result': 2, 'message': 'Token有误!'}
+            result = {'result': 10, 'message': 'Token有误!'}
             return JsonResponse(result)
         data_json = json.loads(request.body)
         userID = int(data_json.get('userID'))
