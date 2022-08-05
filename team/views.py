@@ -170,7 +170,7 @@ def invite(request):
         return warning_res('用户'+that_user.username+'已经在团队中')
     # 生成邀请链接
     s = random_str(20)
-    url = 'http://127.0.0.1:8000/api/team/acceptInvitation/' + s
+    url = 'http://43.138.77.8:8000/api/team/acceptInvitation/' + s
     print(url)
     Invitation.objects.create(user=that_user, team=team, invite_url=s)
     send_status = send_mail(
