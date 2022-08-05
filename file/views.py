@@ -186,12 +186,13 @@ def project_last_visit(request):
     for team in team_list:
         if get_user_auth(user, team.team) >= 0:
             project_list += File.objects.filter(team=team.team, type=1, is_deleted=0).order_by('-last_visit_time')
-    result_list=[]
+    result_list = []
     for project in project_list[:6]:
         if get_user_auth(user, project.team) >= 0:
             content = {'fileID': project.fileID, 'fileName': project.file_name,
                        'fileImage': project.file_image, 'createTime': project.create_time,
-                       'lastVisitTime': project.last_visit_time}
+                       'lastVisitTime': project.last_visit_time, 'teamName': project.team.team_name,
+                       'userName': project.user.username}
             result_list.append(content)
     content = {'list': result_list}
     return res(0, '查询成功', content)
@@ -207,7 +208,7 @@ def clear_bin(request):
         return not_login_res()
     try:
         data_json = json.loads(request.body)
-        fileID=int(data_json['fileID'])
+        fileID = int(data_json['fileID'])
         file = File.objects.get(fileID=fileID)
         file.delete()
         return res(0, '清空成功')
@@ -223,7 +224,6 @@ def clear_bin(request):
         return res(0, '清空成功')
 
 
-
 @csrf_exempt
 def bin_list(request):
     # 一般检查
@@ -232,9 +232,9 @@ def bin_list(request):
     b, userID = get_user_id(request)
     if not b:
         return not_login_res()
-    try :
+    try:
         data_json = json.loads(request.body)
-        fileID=int(data_json['fileID'])
+        fileID = int(data_json['fileID'])
         file = File.objects.get(fileID=fileID)
         file_list = File.objects.filter(father=file)
         result_list = []
@@ -279,8 +279,8 @@ def all(request):
     for project in project_list:
         if get_user_auth(user, project.team) >= 0:
             content = {'fileID': project.fileID, 'fileName': project.file_name,
-                        'createTime': project.create_time, 'lastVisitTime': project.last_visit_time,'fileImage':project.file_image}
+                       'createTime': project.create_time, 'lastVisitTime': project.last_visit_time,
+                       'fileImage': project.file_image}
             result_list.append(content)
     content = {'list': result_list}
     return res(0, '查询成功', content)
-
