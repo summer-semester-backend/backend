@@ -51,6 +51,10 @@ def create(request):
     father = id_to_file(params['fatherID'], team, user)
     if father is None:
         return error_res('找不到父文件')
+    # 检查文件类型合法性
+    params['fileType'] = int(params['fileType'])
+    if params['fileType'] not in FType.available_list:
+        return error_res(str(params['fileType']) + '不是任何类型')
     file = File.objects.create(
         file_name=params['fileName'],
         type=params['fileType'],
