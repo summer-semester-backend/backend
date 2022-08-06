@@ -243,11 +243,11 @@ def bin_list(request):
         data_json = json.loads(request.body)
         fileID = int(data_json['fileID'])
         file = File.objects.get(fileID=fileID)
-        file_list = File.objects.filter(father=file)
+        file_list = File.objects.filter(father=file,is_deleted=1)
         result_list = []
         for file in file_list:
             content = {'fileID': file.fileID, 'fileName': file.file_name,
-                       'abandonTime': file.abandon_time,'fileType':file.file_types}
+                       'abandonTime': file.abandon_time,'fileType':file.type}
             result_list.append(content)
         content = {'list': result_list}
         return res(0, '查询成功', content)
@@ -262,7 +262,7 @@ def bin_list(request):
         for project in project_list:
             if get_user_auth(user, project.team) >= 0:
                 content = {'fileID': project.fileID, 'fileName': project.file_name,
-                           'abandonTime': project.abandon_time, 'teamName': project.team.team_name,'fileType':project.file_types}
+                           'abandonTime': project.abandon_time, 'teamName': project.team.team_name,'fileType':project.type}
                 result_list.append(content)
         content = {'list': result_list}
         return res(0, '查询成功', content)
