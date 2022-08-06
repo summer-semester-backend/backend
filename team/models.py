@@ -91,9 +91,5 @@ class Invitation(models.Model):
         to_field='teamID',
         on_delete=models.CASCADE,
     )
-    user = models.ForeignKey(
-        User,
-        to_field='userID',
-        on_delete=models.CASCADE,
-    )
-    invite_url = models.CharField(max_length=30)
+
+    invite_code = models.CharField(max_length=100,null=True)

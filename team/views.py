@@ -156,60 +156,84 @@ def change_team_info(request):
 
 @csrf_exempt
 def invite(request):
-    check = general_check(request, 'POST', ['teamID', 'email'], C.manager)
+    check = general_check(request, 'POST', ['teamID'], C.manager)
     if not check['success']:
         return check['res']
     team = check['team']
-    email = check['vals']['email']
+    # email = check['vals']['email']
     # that_user_id = check['vals']['userID']
-    try:
-        that_user = User.objects.get(email=email)
-    except:
-        return error_res('邮箱有问题')
+    # try:
+    #     that_user = User.objects.get(email=email)
+    # except:
+    #     return error_res('邮箱有问题')
     # 被邀请人现在不能在团队中
-    auth = get_user_auth(that_user, team)
-    if auth > C.invited:
-        print(auth)
-        return warning_res('用户'+that_user.username+'已经在团队中')
+    # auth = get_user_auth(that_user, team)
+    # if auth > C.invited:
+    #     print(auth)
+    #     return warning_res('用户'+that_user.username+'已经在团队中')
     # 生成邀请链接
     s = random_str(20)
-    url = 'http://43.138.77.8:8000/api/team/acceptInvitation/' + s
-    print(url)
-    Invitation.objects.create(user=that_user, team=team, invite_url=s)
-    send_status = send_mail(
-        subject='加入团队邀请 - '+team.team_name,
-        message='访问链接以加入:'+url,
-        from_email=settings.EMAIL_HOST_USER,
-        recipient_list=[email])
-    tu = Team_User.objects.filter(team=team, user=that_user)
-    if len(tu) == 1:
-        tu[0].authority = C.invited
-        tu[0].save()
-    elif len(tu) == 0:
-        Team_User.objects.create(team=team, user=that_user, authority=C.invited)
-    else:
-        raise Exception('Team_User中有多个权限信息')
-    return good_res('已发出邀请邮件')
+    #url = 'http://43.138.77.8:8000/api/team/acceptInvitation/' + s
+    #print(url)
+    Invitation.objects.create(team=team, invite_code=s)
+    # send_status = send_mail(
+    #     subject='加入团队邀请 - '+team.team_name,
+    #     message='访问链接以加入:'+url,
+    #     from_email=settings.EMAIL_HOST_USER,
+    #     recipient_list=[email])
+    #tu = Team_User.objects.filter(team=team, user=that_user)
+    # if len(tu) == 1:
+    #     tu[0].authority = C.invited
+    #     tu[0].save()
+    # elif len(tu) == 0:
+    #     Team_User.objects.create(team=team, user=that_user, authority=C.invited)
+    # else:
+    #     raise Exception('Team_User中有多个权限信息')
+    #return good_res('已发出邀请邮件')
+    return good_res('成功获取校验码', {
+        'inviteCode': s,
+    })
 
 
 @csrf_exempt
 def accept_invitation(request):
-    print(request.get_host() + request.get_full_path())
-    s = request.get_full_path()[-20:]
-    invitation = Invitation.objects.filter(invite_url=s)
-    if len(invitation) != 1:
-        return
-    invitation = invitation[0]
-    user = invitation.user
-    team = invitation.team
-    tu = Team_User.objects.get(user=user, team=team)
-    if tu.authority == C.invited:
-        tu.authority = C.member
-    tu.save()
-    invitation.delete()
-    return good_res('用户'+user.username+'已加入')
+    # print(request.get_host() + request.get_full_path())
+    # s = request.get_full_path()[-20:]
+    # invitation = Invitation.objects.filter(invite_url=s)
+
+    # if len(invitation) != 1:
+    #     return
+    # invitation = invitation[0]
+    # user = invitation.user
+    # team = invitation.team
+    # tu = Team_User.objects.get(user=user, team=team)
+    # if tu.authority == C.invited:
+    #     tu.authority = C.member
+    # tu.save()
+    # invitation.delete()
+    # return good_res('用户'+user.username+'已加入')
 
     # Team_User.objects.create(user=user, team=team, authority=C.member)
+    if request.method == 'POST':
+        token = request.META.get('HTTP_AUTHORIZATION', 0)
+        userID = check_token(token)
+        if userID == -1:
+            result = {'result': 10, 'message': 'Token有误!'}
+            return JsonResponse(result)
+        data_json = json.loads(request.body)
+        invite_code = data_json.get('inviteCode')
+        if not Invitation.objects.filter(invite_code=invite_code).exists():
+            result = {'result': 2, 'message': '身份错误!'}
+            return JsonResponse(result)
+        else:
+            user=User.objects.get(userID=userID)
+            invitation=Invitation.objects.get(invite_code=invite_code)
+            Team_User.objects.create(team=invitation.team, user=user, authority=C.member)
+            result = {'result': 0, 'message': '加入团队成功!'}
+            return JsonResponse(result)   
+    else:
+        result = {'result': 2, 'message': '请求方式错误!'}
+        return JsonResponse(result)
 
 
 @csrf_exempt

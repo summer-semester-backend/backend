@@ -8,7 +8,7 @@ urlpatterns = [
     path('manager/add', add_manager),
     path('change', change_team_info),
     path('user/invite', invite),
-    re_path('acceptInvitation/.*', accept_invitation),
+    re_path('acceptInvitation', accept_invitation),
     path('manager/delete', delete_manager),
     path('delete', delete_team),
     path('user/delete', delete_member),

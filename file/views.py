@@ -58,12 +58,12 @@ def create(request):
     if params['fileImage'] == "" and params['fileType'] ==1 :
         params['fileImage'] = "http://43.138.77.8:8000/media/image/20220805/20220805220731_38.png"
     # 检查文件名, 如果和相同father下面有重复, 就给加上后缀*, 并返回warning
-    tmp = File.objects.filter(father=father, file_name=params['fileName'])
+    tmp = File.objects.filter(father=father, file_name=params['fileName'],is_deleted=0)
     warning = False
     while tmp.exists():
         params['fileName'] += '*'
         warning = True
-        tmp = File.objects.filter(father=father, file_name=params['fileName'])
+        tmp = File.objects.filter(father=father, file_name=params['fileName'],is_deleted=0)
     file = File.objects.create(
         file_name=params['fileName'],
         type=params['fileType'],
@@ -111,7 +111,7 @@ def write(request):
     assert isinstance(file, File)
     vals = get_params_by_list(
         request,
-        arg_list=[],
+        arg_list=['fileID'],
         optional_arg_list=['fileName', 'fileImage', 'fatherID', 'data']
     )
     if 'fatherID' in vals:
@@ -122,18 +122,27 @@ def write(request):
             return error_res('父文件必须是文件夹')
         file.father = father
     # 检查文件名, 如果和相同father下面有重复, 就给加上后缀*, 并返回warning
-    tmp = File.objects.filter(father=file.father, file_name=vals['fileName'])
+    tmp = File.objects.get(fileID=vals['fileID'])
     warning = False
-    while tmp.exists():
-        vals['fileName'] += '*'
-        warning = True
-    if 'fileName' in vals:
-        file.file_name = vals['fileName']
-    if 'fileImage' in vals:
-        file.file_image = vals['fileImage']
-    if 'data' in vals:
-        file.data = vals['data']
-    file.save()
+    if tmp.file_name != vals['fileName']:
+        tmp = File.objects.filter(father=file.father, file_name=vals['fileName'],is_deleted=0)
+        while tmp.exists():
+            vals['fileName'] += '*'
+            warning = True
+            tmp = File.objects.filter(father=file.father, file_name=vals['fileName'],is_deleted=0)
+        if 'fileName' in vals:
+            file.file_name = vals['fileName']
+        if 'fileImage' in vals:
+            file.file_image = vals['fileImage']
+        if 'data' in vals:
+            file.data = vals['data']
+        file.save()
+    else:
+        if 'fileImage' in vals:
+            file.file_image = vals['fileImage']
+        if 'data' in vals:
+            file.data = vals['data']
+        file.save()
     if warning:
         return warning_res('修改已保存, 但同路径下不可重名, 已自动在项目/文件名后增加*号')
     return good_res('修改已保存')
@@ -185,10 +194,21 @@ def recover_file(request):
     if file.is_deleted == 0:
         return res(2, '文件不存在')
     else:
-        file.is_deleted = 0
-        file.save()
-    return res(0, '文件恢复成功')
-
+        tmp = File.objects.filter(father=file.father, file_name=file.file_name,is_deleted=0)
+        if tmp.exists():
+            name=file.file_name
+            while tmp.exists():         
+                name += '*'
+                warning = True
+                tmp = File.objects.filter(father=file.father, file_name=name,is_deleted=0)
+            file.file_name=name
+            file.is_deleted = 0
+            file.save()   
+            return  warning_res('文件已恢复, 但同路径下不可重名, 已自动在项目/文件名后增加*号')
+        else:
+            file.is_deleted = 0
+            file.save()   
+            return res(0, '文件恢复成功')
 
 @csrf_exempt
 def project_last_visit(request):
@@ -209,7 +229,7 @@ def project_last_visit(request):
     ss = []
     for project in project_list:
         if get_user_auth(user, project.team) >= 0:
-            s = project.last_visit_time.strftime("%Y-%m-%d-%H")
+            s = project.last_visit_time.strftime('%Y-%m-%d %H:%M:%S')
             content = {'fileID': project.fileID, 'fileName': project.file_name,
                        'fileImage': project.file_image, 'createTime': project.create_time,
                        'lastVisitTime': project.last_visit_time, 'teamName': project.team.team_name,
