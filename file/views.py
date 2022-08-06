@@ -20,7 +20,7 @@ from .models import FType, File
 from utils.responce import res, good_res, warning_res, error_res
 from utils.responce import method_err_res, not_login_res, bad_authority_res
 from utils.params import lack_error_res, lack_check, get_params
-
+from utils.utils import *
 
 @csrf_exempt
 def create(request):

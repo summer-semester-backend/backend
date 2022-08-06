@@ -54,7 +54,8 @@ def general_check(request, method, params, authority, optional_params=None):
     auth = get_user_auth(user, team)
     # 权限检查
     if auth < authority:
-        result['res'] = bad_authority_res('此操作需要权限'+str(authority)+', 你的权限为'+str(auth))
+        #result['res'] = bad_authority_res('此操作需要权限'+str(authority)+', 你的权限为'+str(auth))
+        result['res'] = bad_authority_res('您没有操作权限~')
         return result
     result['success'] = True
     result['vals'] = vals

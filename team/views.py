@@ -2,17 +2,17 @@ import datetime
 
 from django.shortcuts import render
 from jwt import encode
-
+import pytz
 from user.models import User
 from .models import Team, Team_User, C, Invitation
 from file.models import File, FType
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-
+import json
 from utils.responce import res, good_res, warning_res, error_res
 from utils.responce import method_err_res, not_login_res, bad_authority_res
 from utils.params import lack_error_res, lack_check, get_params
-from utils.utils import get_user_id, get_user_auth, random_str, user_simple_info, get_user
+from utils.utils import get_user_id, get_user_auth, random_str, user_simple_info, get_user,check_token
 from .tools import general_check
 
 from django.core.mail import send_mail
@@ -228,9 +228,16 @@ def accept_invitation(request):
         else:
             user=User.objects.get(userID=userID)
             invitation=Invitation.objects.get(invite_code=invite_code)
-            Team_User.objects.create(team=invitation.team, user=user, authority=C.member)
-            result = {'result': 0, 'message': '加入团队成功!'}
-            return JsonResponse(result)   
+            if (datetime.datetime.now()-invitation.create_time.replace(tzinfo=None)).seconds>604800:
+                result = {'result': 2, 'message': '邀请已过期!'}
+                return JsonResponse(result)   
+            if not Team_User.objects.filter(team=invitation.team, user=user).exists():
+                Team_User.objects.create(team=invitation.team, user=user, authority=C.member)
+                result = {'result': 0, 'message': '加入团队成功!','teamID':invitation.team.teamID}
+                return JsonResponse(result)   
+            else:
+                result = {'result': 0, 'message': '您已加入该团队!','teamID':invitation.team.teamID}
+                return JsonResponse(result)   
     else:
         result = {'result': 2, 'message': '请求方式错误!'}
         return JsonResponse(result)

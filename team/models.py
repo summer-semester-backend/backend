@@ -91,5 +91,5 @@ class Invitation(models.Model):
         to_field='teamID',
         on_delete=models.CASCADE,
     )
-
     invite_code = models.CharField(max_length=100,null=True)
+    create_time = models.DateTimeField(auto_now_add=True,null=True)
