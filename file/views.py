@@ -60,9 +60,10 @@ def create(request):
     # 检查文件名, 如果和相同father下面有重复, 就给加上后缀*, 并返回warning
     tmp = File.objects.filter(father=father, file_name=params['fileName'])
     warning = False
-    if tmp.exists():
+    while tmp.exists():
         params['fileName'] += '*'
         warning = True
+        tmp = File.objects.filter(father=father, file_name=params['fileName'])
     file = File.objects.create(
         file_name=params['fileName'],
         type=params['fileType'],
@@ -123,8 +124,7 @@ def write(request):
     # 检查文件名, 如果和相同father下面有重复, 就给加上后缀*, 并返回warning
     tmp = File.objects.filter(father=file.father, file_name=vals['fileName'])
     warning = False
-    # warning_message = ""
-    if tmp.exists():
+    while tmp.exists():
         vals['fileName'] += '*'
         warning = True
     if 'fileName' in vals:
