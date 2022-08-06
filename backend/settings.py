@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'team',
     'corsheaders',
     'file',
+    'broadcast',
 ]
 
 MIDDLEWARE = [
