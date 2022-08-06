@@ -98,12 +98,15 @@ def get_users_info(request):
     # user = check['user']
     team = check['team']
     tu_list = Team_User.objects.filter(team=team)
-    userList = list(map(lambda tu: {
-        'username': tu.user.username,
-        'email': tu.user.email,
-        'userID': tu.user.userID,
-        'authority': tu.authority,
-    }, tu_list))
+    userList = [
+        {
+            'username': tu.user.username,
+            'email': tu.user.email,
+            'userID': tu.user.userID,
+            'authority': tu.authority,
+        }
+        for tu in tu_list
+    ]
     return good_res('成功获取团队列表', {'userList':userList})
     # content = {'managerList': [], 'userList': [], 'invalidList': []}
     # founder = Team_User.objects.get(team=team, authority=C.founder)
@@ -271,9 +274,10 @@ def my_team_list(request):
     tu_list = Team_User.objects.filter(user=user)
     team_list = []
     for tu in tu_list:
-        dic = tu.team.info()
-        dic['authority'] = C.trans(tu.authority)
-        team_list.append(dic)
+        if tu.authority <= C.invited:
+            dic = tu.team.info()
+            dic['authority'] = C.trans(tu.authority)
+            team_list.append(dic)
     return good_res('成功获取我所在的团队信息', {'list': team_list})
 
 
