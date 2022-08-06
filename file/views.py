@@ -98,6 +98,8 @@ def read(request):
         result = {'sonList': content}
     else:
         result = content
+    file.last_visit_time = datetime.datetime.now()
+    file.save()
     info.update(result)
     return good_res('成功读取文件', info)
 
