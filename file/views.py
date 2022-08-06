@@ -57,6 +57,12 @@ def create(request):
         return error_res(str(params['fileType']) + '不是任何类型')
     if params['fileImage'] == "" and params['fileType'] ==1 :
         params['fileImage'] = "http://43.138.77.8:8000/media/image/20220805/20220805220731_38.png"
+    # 检查文件名, 如果和相同father下面有重复, 就给加上后缀*, 并返回warning
+    tmp = File.objects.filter(father=father, file_name=params['fileName'])
+    warning = False
+    if tmp.exists():
+        params['fileName'] += '*'
+        warning = True
     file = File.objects.create(
         file_name=params['fileName'],
         type=params['fileType'],
@@ -67,6 +73,8 @@ def create(request):
     if team is not None:
         file.team = team
     file.save()
+    if warning:
+        return warning_res('同路径下不可重名, 已自动在项目/文件名后增加*号')
     return good_res('成功创建文件')
 
 
@@ -105,10 +113,6 @@ def write(request):
         arg_list=[],
         optional_arg_list=['fileName', 'fileImage', 'fatherID', 'data']
     )
-    if 'fileName' in vals:
-        file.file_name = vals['fileName']
-    if 'fileImage' in vals:
-        file.file_image = vals['fileImage']
     if 'fatherID' in vals:
         father = id_to_file(vals['fatherID'], file.team, file.file_creator)
         if father is None:
@@ -116,10 +120,23 @@ def write(request):
         if not father.is_dir():
             return error_res('父文件必须是文件夹')
         file.father = father
+    # 检查文件名, 如果和相同father下面有重复, 就给加上后缀*, 并返回warning
+    tmp = File.objects.filter(father=file.father, file_name=vals['fileName'])
+    warning = False
+    # warning_message = ""
+    if tmp.exists():
+        vals['fileName'] += '*'
+        warning = True
+    if 'fileName' in vals:
+        file.file_name = vals['fileName']
+    if 'fileImage' in vals:
+        file.file_image = vals['fileImage']
     if 'data' in vals:
         file.data = vals['data']
     file.save()
-    return good_res('文件修改已保存')
+    if warning:
+        return warning_res('修改已保存, 但同路径下不可重名, 已自动在项目/文件名后增加*号')
+    return good_res('修改已保存')
 
 
 @csrf_exempt
