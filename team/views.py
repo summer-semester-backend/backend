@@ -275,9 +275,10 @@ def my_team_list(request):
     team_list = []
     for tu in tu_list:
         if tu.authority <= C.invited:
-            dic = tu.team.info()
-            dic['authority'] = C.trans(tu.authority)
-            team_list.append(dic)
+            continue
+        dic = tu.team.info()
+        dic['authority'] = C.trans(tu.authority)
+        team_list.append(dic)
     return good_res('成功获取我所在的团队信息', {'list': team_list})
 
 
