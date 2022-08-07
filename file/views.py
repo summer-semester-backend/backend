@@ -126,29 +126,36 @@ def write(request):
     # 检查文件名, 如果和相同father下面有重复, 就给加上后缀*, 并返回warning
     tmp = File.objects.get(fileID=vals['fileID'])
     warning = False
-    if tmp.file_name != vals['fileName']:
-        tmp = File.objects.filter(father=file.father, file_name=vals['fileName'],is_deleted=0)
-        while tmp.exists():
-            vals['fileName'] += '*'
-            warning = True
+    if 'fileName' in vals:
+        if tmp.file_name != vals['fileName']:
             tmp = File.objects.filter(father=file.father, file_name=vals['fileName'],is_deleted=0)
-        if 'fileName' in vals:
-            file.file_name = vals['fileName']
-        if 'fileImage' in vals:
-            file.file_image = vals['fileImage']
-        if 'data' in vals:
-            file.data = vals['data']
-        file.save()
+            while tmp.exists():
+                vals['fileName'] += '*'
+                warning = True
+                tmp = File.objects.filter(father=file.father, file_name=vals['fileName'],is_deleted=0)
+            if 'fileName' in vals:
+                file.file_name = vals['fileName']
+            if 'fileImage' in vals:
+                file.file_image = vals['fileImage']
+            if 'data' in vals:
+                file.data = vals['data']
+            file.save()
+        else:
+            if 'fileImage' in vals:
+                file.file_image = vals['fileImage']
+            if 'data' in vals:
+                file.data = vals['data']
+            file.save()
+        if warning:
+            return warning_res('修改已保存, 但同路径下不可重名, 已自动在项目/文件名后增加*号')
+        return good_res('修改已保存')
     else:
         if 'fileImage' in vals:
             file.file_image = vals['fileImage']
         if 'data' in vals:
             file.data = vals['data']
         file.save()
-    if warning:
-        return warning_res('修改已保存, 但同路径下不可重名, 已自动在项目/文件名后增加*号')
-    return good_res('修改已保存')
-
+        return good_res('修改已保存')
 
 @csrf_exempt
 def delete_file(request):

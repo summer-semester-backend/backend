@@ -55,7 +55,11 @@ def file_general_check(request, method, params, authority=-100, optional_params=
         file = id_to_file(vals['fileID'])
     else:
         if 'teamID' not in vals:
-            result.update({'res': error_res('fileID为-1的时候需要给出teamID')})
+            result['res'] = error_res('fileID为-1的时候需要给出teamID')
+            return result
+        team_list = Team.objects.filter(teamID=vals['teamID']) 
+        if not team_list.exists():
+            result['res'] = error_res('团队不存在')
             return result
         team = Team.objects.get(teamID=vals['teamID'])
         file = id_to_file(vals['fileID'], team=team)
@@ -72,7 +76,7 @@ def file_general_check(request, method, params, authority=-100, optional_params=
             return result
     else:
         if file.file_creator.userID != user.userID:
-            result.update({'res', error_res('不能访问别人的个人文件')})
+            result['res'] = error_res('不能访问别人的个人文件')
             return result
     result['success'] = True
     result.update({
