@@ -76,3 +76,20 @@ class File(models.Model):
             # return list(map(lambda x: x.info(), son_list))
         else:
             return {'data': self.data}
+
+    def copy(self):
+        """生成本文件的复制品"""
+        return File(
+            # fileID=self.fileID,
+            file_image=self.file_image,
+            file_name=self.file_name,
+            # create_time=self.create_time,
+            # last_visit_time=self.last_visit_time,
+            abandon_time=self.abandon_time,
+            team=self.team,
+            father=self.father,
+            data=self.data,
+            file_creator=self.file_creator,
+            is_deleted=self.is_deleted,
+            type=self.type,
+        )

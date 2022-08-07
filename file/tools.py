@@ -101,3 +101,43 @@ def id_to_file(fileID, team=None, user=None):
         return None
     return file
 
+
+def inherit(file, father):
+    """从father处继承必要的信息"""
+
+
+def copy_implement(file, father, level=0):
+    """
+    复制文件和其下属的内容到指定的父文件下方, 新文件的所有权和father保持一致
+    - file: 被复制的文件
+    - father: 要复制到的位置
+    """
+    if level == 20:
+        raise Exception('递归层数达到20, 疑似无限递归')
+    print("level = {}".format(level))
+    assert isinstance(file, File)
+    assert isinstance(father, File)
+    if not father.is_dir():
+        raise Exception(father.file_name+"不是文件夹, 无法作为父目录")
+    # 提前获取下属文件列表, 避免无限递归
+    son_list = []
+    if file.is_dir():
+        son_list = File.objects.filter(father=file)
+    print(len(son_list))
+    # print(son_list[0].fileID)
+    # 创建file的副本
+    copy = file.copy()
+    assert isinstance(copy, File)
+    # 从father继承必要的信息
+    copy.team = father.team
+    copy.file_creator = father.file_creator
+    copy.save()
+    # 如果是同目录下复制, 在文件名后面添加'-副本'
+    for son in son_list:
+        # print(son.file_name)
+        if not son.is_deleted:
+            copy_implement(son, copy, level+1)
+    if copy.father.fileID == file.father.fileID:
+        copy.file_name += ' - 副本'
+    copy.father = father
+    copy.save()

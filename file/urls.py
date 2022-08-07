@@ -11,4 +11,5 @@ urlpatterns = [
     path('binList', bin_list),
     path('clearBin', clear_bin),
     path('all', all),
+    path('copy', copy),
 ]
