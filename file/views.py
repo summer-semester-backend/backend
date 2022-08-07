@@ -230,7 +230,6 @@ def project_last_visit(request):
     b, userID = get_user_id(request)
     if not b:
         return not_login_res()
-    # 获取信息，并检查是否缺项
     user = User.objects.get(userID=userID)
     team_list = Team_User.objects.filter(user=user)
     project_list = []
@@ -262,22 +261,24 @@ def clear_bin(request):
     b, userID = get_user_id(request)
     if not b:
         return not_login_res()
-    try:
-        data_json = json.loads(request.body)
-        fileID = int(data_json['fileID'])
-        file = File.objects.get(fileID=fileID)
-        file.delete()
-        return res(0, '清空成功')
-    except:
-        user = User.objects.get(userID=userID)
-        team_list = Team_User.objects.filter(user=user)
-        project_list = []
-        for team in team_list:
-            if get_user_auth(user, team.team) >= 0:
-                project_list += File.objects.filter(team=team.team, type=1, is_deleted=1)
-        for project in project_list:
-            project.delete()
-        return res(0, '清空成功')
+    data_json = json.loads(request.body)
+    fileID = int(data_json['fileID'])
+    if fileID == -1:
+        teamID = int(data_json['teamID'])
+        team = Team.objects.get(teamID=teamID)
+        file_list = File.objects.filter(team=team, is_deleted=1)
+        result_list = []
+        for file in file_list:
+            file.delete()
+        return res(0, '清空成功', content)
+    else:
+        rubbish_list=[]
+        file=File.objects.get(fileID=fileID)
+        find_rubbish(file,rubbish_list)     
+        result_list = []
+        for rubbish in rubbish_list:
+            rubbish.delete()
+        return res(0, '清空成功', content)
 
 
 @csrf_exempt
@@ -288,11 +289,12 @@ def bin_list(request):
     b, userID = get_user_id(request)
     if not b:
         return not_login_res()
-    try:
-        data_json = json.loads(request.body)
-        fileID = int(data_json['fileID'])
-        file = File.objects.get(fileID=fileID)
-        file_list = File.objects.filter(father=file, is_deleted=1)
+    data_json = json.loads(request.body)
+    fileID = int(data_json['fileID'])
+    if fileID == -1:
+        teamID = int(data_json['teamID'])
+        team = Team.objects.get(teamID=teamID)
+        file_list = File.objects.filter(team=team, is_deleted=1)
         result_list = []
         for file in file_list:
             content = {'fileID': file.fileID, 'fileName': file.file_name,
@@ -300,20 +302,17 @@ def bin_list(request):
             result_list.append(content)
         content = {'list': result_list}
         return res(0, '查询成功', content)
-    except:
-        user = User.objects.get(userID=userID)
-        team_list = Team_User.objects.filter(user=user)
-        project_list = []
-        for team in team_list:
-            if get_user_auth(user, team.team) >= 0:
-                project_list += File.objects.filter(team=team.team, type=1, is_deleted=1)
+    else:
+        rubbish_list=[]
+        file=File.objects.get(fileID=fileID)
+        find_rubbish(file,rubbish_list)
+        
         result_list = []
-        for project in project_list:
-            if get_user_auth(user, project.team) >= 0:
-                content = {'fileID': project.fileID, 'fileName': project.file_name,
-                           'abandonTime': project.abandon_time, 'teamName': project.team.team_name,
-                           'fileType': project.type}
-                result_list.append(content)
+        for rubbish in rubbish_list:
+            content = {'fileID': rubbish.fileID, 'fileName': rubbish.file_name,
+                        'abandonTime': rubbish.abandon_time, 'teamName': rubbish.team.team_name,
+                        'fileType': rubbish.type}
+            result_list.append(content)
         content = {'list': result_list}
         return res(0, '查询成功', content)
 
@@ -392,7 +391,7 @@ def copy(request):
     father = id_to_file(fatherID, team, user)
     if father is None:
         return error_res('父文件不存在')
-    # 操作合法性检查
+    #操作合法性检查
     if (file.team is None) != (father.team is None):
         if file.team is None:
             return error_res('个人文件只能复制为个人文件')
@@ -405,3 +404,15 @@ def copy(request):
     # 实施复制
     copy_implement(file, father)
     return good_res('复制完成')
+
+
+def find_rubbish(file,rubbish_list:list):
+    file_list=File.objects.filter(father=file)
+    if file_list.exists():
+        for file in file_list:
+            if file.is_deleted==1:
+                rubbish_list.append(file)
+            else:
+                find_rubbish(file,rubbish_list)
+    else:
+        return
