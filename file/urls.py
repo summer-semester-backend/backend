@@ -13,4 +13,6 @@ urlpatterns = [
     path('clearBin', clear_bin),
     path('all', all),
     path('centerRead', center_read),
+    path('copy', copy),
 ]
+

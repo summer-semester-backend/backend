@@ -7,7 +7,7 @@ from utils.utils import get_user_id, get_user, get_user_auth, random_str, user_s
 import json
 from .models import File, FType
 
-from .tools import id_to_file, file_general_check
+from .tools import id_to_file, file_general_check, copy_implement
 from team.tools import id_to_team
 
 import datetime
@@ -361,7 +361,7 @@ def center_read(request):
     if 'teamID' in check['vals']:
         content = file.center(True)
     else:
-        content = file.center(True)
+        content = file.center(False)
     if file.is_dir():
         result = {'sonList': content}
     else:
@@ -370,3 +370,38 @@ def center_read(request):
     file.save()
     info.update(result)
     return good_res('成功读取文件', info)
+
+@csrf_exempt
+def copy(request):
+    check = file_general_check(
+        request,
+        'POST',
+        ['fileID', 'fatherID'],
+        C.member,
+        ['teamID']
+    )
+    if not check['success']:
+        return check['res']
+    file = check['file']
+    assert isinstance(file, File)
+    fatherID = check['vals']['fatherID']
+    user = get_user(request)
+    team = None
+    if 'teamID' in check['vals']:
+        team = id_to_team(check['vals']['teamID'])
+    father = id_to_file(fatherID, team, user)
+    if father is None:
+        return error_res('父文件不存在')
+    # 操作合法性检查
+    if (file.team is None) != (father.team is None):
+        if file.team is None:
+            return error_res('个人文件只能复制为个人文件')
+        else:
+            return error_res('团队文件只能复制为团队文件')
+    if team is not None and father.team.teamID is not file.team.teamID:
+        return error_res('父文件需要属于同一团队')
+    if team is None and father.file_creator.userID is not file.file_creator.userID:
+        return error_res('父文件不是你自己的文件')
+    # 实施复制
+    copy_implement(file, father)
+    return good_res('复制完成')
