@@ -30,7 +30,7 @@ def create_team_implement(user, team_name, summary):
     root_file = File.objects.create(
         file_creator=user,
         file_image='',
-        file_name='root',
+        file_name='项目文档',
         type=FType.root,
     )
     team = Team(

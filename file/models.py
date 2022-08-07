@@ -71,8 +71,32 @@ class File(models.Model):
     def content(self):
         """文件夹下属文件信息, 或文件数据"""
         if self.is_dir():
-            son_list = File.objects.filter(father=self)
-            return [x.info() for x in son_list if not x.is_deleted]
-            # return list(map(lambda x: x.info(), son_list))
+            if self.type == 0:
+                son_list = File.objects.filter(father=self, type=1)
+                return [x.info() for x in son_list if not x.is_deleted]
+                # return list(map(lambda x: x.info(), son_list))
+            else:
+                son_list = File.objects.filter(father=self)
+                return [x.info() for x in son_list if not x.is_deleted]
+                # return list(map(lambda x: x.info(), son_list))
+        else:
+            return {'data': self.data}
+
+    def center(self, judge):
+        """文件夹下属文件信息, 或文件数据"""
+        if self.is_dir():
+            if self.type == 0:
+                if judge:
+                    son_list = [self]
+                    son_list += File.objects.filter(father=self).exclude(type=1)
+                    return [x.info() for x in son_list if not x.is_deleted]
+                    # return list(map(lambda x: x.info(), son_list))
+                else:
+                    son_list = File.objects.filter(father=self, type=1)
+                    return [x.info() for x in son_list if not x.is_deleted]
+                    # return list(map(lambda x: x.info(), son_list))
+            else:
+                son_list = File.objects.filter(father=self)
+                return [x.info() for x in son_list if not x.is_deleted]
         else:
             return {'data': self.data}

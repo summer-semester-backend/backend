@@ -22,6 +22,7 @@ from utils.responce import method_err_res, not_login_res, bad_authority_res
 from utils.params import lack_error_res, lack_check, get_params
 from utils.utils import *
 
+
 @csrf_exempt
 def create(request):
     """
@@ -55,15 +56,15 @@ def create(request):
     params['fileType'] = int(params['fileType'])
     if params['fileType'] not in FType.available_list:
         return error_res(str(params['fileType']) + '不是任何类型')
-    if params['fileImage'] == "" and params['fileType'] ==1 :
+    if params['fileImage'] == "" and params['fileType'] == 1:
         params['fileImage'] = "http://43.138.77.8:8000/media/image/20220805/20220805220731_38.png"
     # 检查文件名, 如果和相同father下面有重复, 就给加上后缀*, 并返回warning
-    tmp = File.objects.filter(father=father, file_name=params['fileName'],is_deleted=0)
+    tmp = File.objects.filter(father=father, file_name=params['fileName'], is_deleted=0)
     warning = False
     while tmp.exists():
         params['fileName'] += '*'
         warning = True
-        tmp = File.objects.filter(father=father, file_name=params['fileName'],is_deleted=0)
+        tmp = File.objects.filter(father=father, file_name=params['fileName'], is_deleted=0)
     file = File.objects.create(
         file_name=params['fileName'],
         type=params['fileType'],
@@ -128,11 +129,11 @@ def write(request):
     warning = False
     if 'fileName' in vals:
         if tmp.file_name != vals['fileName']:
-            tmp = File.objects.filter(father=file.father, file_name=vals['fileName'],is_deleted=0)
+            tmp = File.objects.filter(father=file.father, file_name=vals['fileName'], is_deleted=0)
             while tmp.exists():
                 vals['fileName'] += '*'
                 warning = True
-                tmp = File.objects.filter(father=file.father, file_name=vals['fileName'],is_deleted=0)
+                tmp = File.objects.filter(father=file.father, file_name=vals['fileName'], is_deleted=0)
             if 'fileName' in vals:
                 file.file_name = vals['fileName']
             if 'fileImage' in vals:
@@ -156,6 +157,7 @@ def write(request):
             file.data = vals['data']
         file.save()
         return good_res('修改已保存')
+
 
 @csrf_exempt
 def delete_file(request):
@@ -203,21 +205,22 @@ def recover_file(request):
     if file.is_deleted == 0:
         return res(2, '文件不存在')
     else:
-        tmp = File.objects.filter(father=file.father, file_name=file.file_name,is_deleted=0)
+        tmp = File.objects.filter(father=file.father, file_name=file.file_name, is_deleted=0)
         if tmp.exists():
-            name=file.file_name
-            while tmp.exists():         
+            name = file.file_name
+            while tmp.exists():
                 name += '*'
                 warning = True
-                tmp = File.objects.filter(father=file.father, file_name=name,is_deleted=0)
-            file.file_name=name
+                tmp = File.objects.filter(father=file.father, file_name=name, is_deleted=0)
+            file.file_name = name
             file.is_deleted = 0
-            file.save()   
-            return  warning_res('文件已恢复, 但同路径下不可重名, 已自动在项目/文件名后增加*号')
+            file.save()
+            return warning_res('文件已恢复, 但同路径下不可重名, 已自动在项目/文件名后增加*号')
         else:
             file.is_deleted = 0
-            file.save()   
+            file.save()
             return res(0, '文件恢复成功')
+
 
 @csrf_exempt
 def project_last_visit(request):
@@ -289,11 +292,11 @@ def bin_list(request):
         data_json = json.loads(request.body)
         fileID = int(data_json['fileID'])
         file = File.objects.get(fileID=fileID)
-        file_list = File.objects.filter(father=file,is_deleted=1)
+        file_list = File.objects.filter(father=file, is_deleted=1)
         result_list = []
         for file in file_list:
             content = {'fileID': file.fileID, 'fileName': file.file_name,
-                       'abandonTime': file.abandon_time,'fileType':file.type}
+                       'abandonTime': file.abandon_time, 'fileType': file.type}
             result_list.append(content)
         content = {'list': result_list}
         return res(0, '查询成功', content)
@@ -308,7 +311,8 @@ def bin_list(request):
         for project in project_list:
             if get_user_auth(user, project.team) >= 0:
                 content = {'fileID': project.fileID, 'fileName': project.file_name,
-                           'abandonTime': project.abandon_time, 'teamName': project.team.team_name,'fileType':project.type}
+                           'abandonTime': project.abandon_time, 'teamName': project.team.team_name,
+                           'fileType': project.type}
                 result_list.append(content)
         content = {'list': result_list}
         return res(0, '查询成功', content)
@@ -338,3 +342,31 @@ def all(request):
             result_list.append(content)
     content = {'list': result_list}
     return res(0, '查询成功', content)
+
+
+@csrf_exempt
+def center_read(request):
+    check = file_general_check(
+        request,
+        'POST',
+        ['fileID'],
+        C.member,
+        optional_params=['teamID']
+    )
+    if not check['success']:
+        return check['res']
+    file = check['file']
+    assert isinstance(file, File)
+    info = file.info()
+    if 'teamID' in check['vals']:
+        content = file.center(True)
+    else:
+        content = file.center(True)
+    if file.is_dir():
+        result = {'sonList': content}
+    else:
+        result = content
+    file.last_visit_time = datetime.datetime.now()
+    file.save()
+    info.update(result)
+    return good_res('成功读取文件', info)
