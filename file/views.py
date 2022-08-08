@@ -7,7 +7,7 @@ from utils.utils import get_user_id, get_user, get_user_auth, random_str, user_s
 import json
 from .models import File, FType
 
-from .tools import id_to_file, file_general_check, copy_implement
+from .tools import id_to_file, file_general_check, copy_implement, name_duplicate_killer
 from team.tools import id_to_team
 
 import datetime
@@ -59,13 +59,13 @@ def create(request):
         return error_res(str(params['fileType']) + '不是任何类型')
     if params['fileImage'] == "" and params['fileType'] == 1:
         params['fileImage'] = "http://43.138.77.8:8000/media/image/20220805/20220805220731_38.png"
-    # 检查文件名, 如果和相同father下面有重复, 就给加上后缀*, 并返回warning
-    tmp = File.objects.filter(father=father, file_name=params['fileName'], is_deleted=0)
-    warning = False
-    while tmp.exists():
-        params['fileName'] += '*'
-        warning = True
-        tmp = File.objects.filter(father=father, file_name=params['fileName'], is_deleted=0)
+    # 解决重名问题
+    # tmp = File.objects.filter(father=father, file_name=params['fileName'], is_deleted=0)
+    # warning = False
+    # while tmp.exists():
+    #     params['fileName'] += '*'
+    #     warning = True
+    #     tmp = File.objects.filter(father=father, file_name=params['fileName'], is_deleted=0)
     file = File.objects.create(
         file_name=params['fileName'],
         type=params['fileType'],
@@ -73,6 +73,7 @@ def create(request):
         father=father,
         file_creator=user,
     )
+    warning = name_duplicate_killer(file)
     if team is not None:
         file.team = team
     file.save()
@@ -404,6 +405,8 @@ def copy(request):
         return error_res('父文件不是你自己的文件')
     # 实施复制
     copy_implement(file, father)
+    if name_duplicate_killer(file):
+        return warning_res('复制完成, 但由于文件重名, 已自动增加后缀*号')
     return good_res('复制完成')
 
 

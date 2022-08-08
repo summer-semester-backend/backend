@@ -130,7 +130,6 @@ def copy_implement(file, father, level=0):
     assert isinstance(copy, File)
     # 从father继承必要的信息
     copy.team = father.team
-    copy.file_creator = father.file_creator
     copy.save()
     # 如果是同目录下复制, 在文件名后面添加'-副本'
     for son in son_list:
@@ -141,3 +140,23 @@ def copy_implement(file, father, level=0):
         copy.file_name += ' - 副本'
     copy.father = father
     copy.save()
+
+
+def name_duplicate_killer(file):
+    """
+    检测并消灭重名问题, 如果改名则返回True, 没重名返回False
+    """
+    assert isinstance(file, File)
+    if file.father is None:
+        return False
+    file_list = File.objects.filter(father=file.father)
+    for f in file_list:
+        if f.fileID == file.fileID:
+            file_list.delete(f)
+            break
+    name_set = set([f.name for f in file_list])
+    changed = False
+    while file.file_name in name_set:
+        file.file_name += '*'
+        changed = True
+    return changed
