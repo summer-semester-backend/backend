@@ -405,10 +405,13 @@ def copy(request):
     if team is None and father.file_creator.userID is not file.file_creator.userID:
         return error_res('父文件不是你自己的文件')
     # 实施复制
-    copy_implement(file, father)
+    copy_instance = copy_implement(file, father)
+    if copy_instance.type==15:
+        copy_instance.type=14
+        copy_instance.save()
     if 'newName' in check['vals']:
-        copy.file_name = check['vals']['newName']
-    if name_duplicate_killer(copy):
+        copy_instance.file_name = check['vals']['newName']
+    if name_duplicate_killer(copy_instance):
         return warning_res('复制完成, 但由于文件重名, 已自动增加后缀*号')
     return good_res('复制完成')
 
@@ -426,17 +429,37 @@ def find_rubbish(file,rubbish_list:list):
 
 @csrf_exempt
 def common_template_text_read(request):
-    file=File.objects.get(fileID=268)
-    info = file.info()
-    content = file.content()
-    if file.is_dir():
-        result = {'sonList': content}
+    if request.method != 'POST':
+        return method_err_res()
+    b, userID = get_user_id(request)
+    if not b:
+        return not_login_res()
+    data_json = json.loads(request.body)
+    fileID = int(data_json['fileID'])
+    if fileID == -1:
+        file=File.objects.get(fileID=268)
+        info = file.info()
+        content = file.content()
+        if file.is_dir():
+            result = {'sonList': content}
+        else:
+            result = content
+        file.last_visit_time = datetime.datetime.now()
+        file.save()
+        info.update(result)
+        return good_res('成功读取文件', info)
     else:
-        result = content
-    file.last_visit_time = datetime.datetime.now()
-    file.save()
-    info.update(result)
-    return good_res('成功读取文件', info)
+        file=File.objects.get(fileID=fileID)
+        info = file.info()
+        content = file.content()
+        if file.is_dir():
+            result = {'sonList': content}
+        else:
+            result = content
+        file.last_visit_time = datetime.datetime.now()
+        file.save()
+        info.update(result)
+        return good_res('成功读取文件', info)
 
 @csrf_exempt
 def ancestor(request):
@@ -465,7 +488,7 @@ def template_read(request):
     check = file_general_check(
         request,
         'POST',
-        ['teamID'],
+        ['fileID','teamID'],
         C.member,
     )
     if not check['success']:
@@ -479,3 +502,31 @@ def template_read(request):
     file.save()
     info.update(result)
     return good_res('成功读取团队模板', info)
+
+
+@csrf_exempt
+def create_template(request):
+    if request.method != 'POST':
+        return method_err_res()
+    b, userID = get_user_id(request)
+    if not b:
+        return not_login_res()
+    data_json = json.loads(request.body)
+    fileID = int(data_json['fileID'])
+    fileName = data_json['fileName']
+    data = data_json['data']
+    file=File.objects.get(fileID=fileID)
+    user=User.objects.get(userID=userID)
+    file = File.objects.create(
+        file_name=fileName,
+        type=15,
+        father=file.team.root_file,
+        file_creator=user,
+        team=file.team,
+        data=data
+    )
+    warning = name_duplicate_killer(file)
+    file.save()
+    if warning:
+        return warning_res('同路径下不可重名, 已自动在项目/文件名后增加*号')
+    return good_res('成功创建团队模板')

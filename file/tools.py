@@ -147,15 +147,18 @@ def name_duplicate_killer(file):
     """
     检测并消灭重名问题, 如果改名则返回True, 没重名返回False
     """
+    print(type(file))
     assert isinstance(file, File)
     if file.father is None:
         return False
     file_list = File.objects.filter(father=file.father)
+    name_set = set()
     for f in file_list:
-        if f.fileID == file.fileID:
-            file_list.delete(f)
-            break
-    name_set = set([f.name for f in file_list])
+        if f.fileID != file.fileID:
+            name_set.add(f.file_name)
+            # file_list.remove(f)
+            # break
+    # name_set = set([f.file_name for f in file_list])
     changed = False
     while file.file_name in name_set:
         file.file_name += '*'

@@ -5,3 +5,4 @@ z/
 *.db
 *.pyc
 media/
+*.backup
