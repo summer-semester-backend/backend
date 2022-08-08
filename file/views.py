@@ -392,11 +392,11 @@ def copy(request):
     if father is None:
         return error_res('父文件不存在')
     #操作合法性检查
-    if (file.team is None) != (father.team is None):
-        if file.team is None:
-            return error_res('个人文件只能复制为个人文件')
-        else:
-            return error_res('团队文件只能复制为团队文件')
+    # if (file.team is None) != (father.team is None):
+    #     if file.team is None:
+    #         return error_res('个人文件只能复制为个人文件')
+    #     else:
+    #         return error_res('团队文件只能复制为团队文件')
     if team is not None and father.team.teamID is not file.team.teamID:
         return error_res('父文件需要属于同一团队')
     if team is None and father.file_creator.userID is not file.file_creator.userID:
