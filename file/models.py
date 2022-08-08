@@ -10,7 +10,8 @@ class FType:
     uml = 12
     prototype = 13
     text = 14
-    available_list = [root, project, directory, uml, prototype, text]
+    text_template = 15
+    available_list = [root, project, directory, uml, prototype, text,text_template]
 
 
 class File(models.Model):
@@ -45,6 +46,7 @@ class File(models.Model):
         (FType.uml, 'uml'),
         (FType.prototype, 'prototype'),
         (FType.text, 'text'),
+        (FType.text_template, 'text_template'),
     ]
     type = models.IntegerField(choices=file_types)
 
@@ -88,7 +90,7 @@ class File(models.Model):
             if self.type == 0:
                 if judge:
                     son_list = [self]
-                    son_list += File.objects.filter(father=self).exclude(type=1)
+                    son_list += File.objects.filter(father=self).exclude(type=1).exclude(type=15)
                     return [x.info() for x in son_list if not x.is_deleted]
                     # return list(map(lambda x: x.info(), son_list))
                 else:
@@ -117,3 +119,8 @@ class File(models.Model):
             is_deleted=self.is_deleted,
             type=self.type,
         )
+
+    def template(self):
+        """文件夹下属文件信息, 或文件数据"""
+        son_list = File.objects.filter(father=self,type=15)
+        return [x.info() for x in son_list if not x.is_deleted]

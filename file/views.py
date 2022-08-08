@@ -379,7 +379,7 @@ def copy(request):
         'POST',
         ['fileID', 'fatherID'],
         C.member,
-        ['teamID']
+        ['teamID', 'newName'],
     )
     if not check['success']:
         return check['res']
@@ -393,6 +393,7 @@ def copy(request):
     father = id_to_file(fatherID, team, user)
     if father is None:
         return error_res('父文件不存在')
+    team = father.team
     #操作合法性检查
     if (file.team is None) != (father.team is None):
         if file.team is None:
@@ -405,7 +406,9 @@ def copy(request):
         return error_res('父文件不是你自己的文件')
     # 实施复制
     copy_implement(file, father)
-    if name_duplicate_killer(file):
+    if 'newName' in check['vals']:
+        copy.file_name = check['vals']['newName']
+    if name_duplicate_killer(copy):
         return warning_res('复制完成, 但由于文件重名, 已自动增加后缀*号')
     return good_res('复制完成')
 
@@ -420,3 +423,59 @@ def find_rubbish(file,rubbish_list:list):
                 find_rubbish(file,rubbish_list)
     else:
         return
+
+@csrf_exempt
+def common_template_text_read(request):
+    file=File.objects.get(fileID=268)
+    info = file.info()
+    content = file.content()
+    if file.is_dir():
+        result = {'sonList': content}
+    else:
+        result = content
+    file.last_visit_time = datetime.datetime.now()
+    file.save()
+    info.update(result)
+    return good_res('成功读取文件', info)
+
+@csrf_exempt
+def ancestor(request):
+    check = file_general_check(
+        request,
+        'POST',
+        ['fileID'],
+        C.member,
+    )
+    if not check['success']:
+        return check['res']
+    file = check['file']
+    assert isinstance(file, File)
+    result_list=[]
+    info = file.info()
+    result_list.append(info)
+    while file.father != None and file.father.type != 0:
+        result_list.append(file.father.info())
+        file=file.father
+    result_list.reverse()
+    info={'list':result_list}
+    return good_res('成功读取祖先文件', info)
+
+@csrf_exempt
+def template_read(request):
+    check = file_general_check(
+        request,
+        'POST',
+        ['teamID'],
+        C.member,
+    )
+    if not check['success']:
+        return check['res']
+    file = check['file']
+    assert isinstance(file, File)
+    info = file.info()
+    content = file.template()
+    result = {'sonList': content}
+    file.last_visit_time = datetime.datetime.now()
+    file.save()
+    info.update(result)
+    return good_res('成功读取团队模板', info)

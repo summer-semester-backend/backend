@@ -140,6 +140,7 @@ def copy_implement(file, father, level=0):
         copy.file_name += ' - 副本'
     copy.father = father
     copy.save()
+    return copy
 
 
 def name_duplicate_killer(file):
