@@ -405,10 +405,10 @@ def copy(request):
     if team is None and father.file_creator.userID is not file.file_creator.userID:
         return error_res('父文件不是你自己的文件')
     # 实施复制
-    copy_implement(file, father)
+    copy_instance = copy_implement(file, father)
     if 'newName' in check['vals']:
-        copy.file_name = check['vals']['newName']
-    if name_duplicate_killer(copy):
+        copy_instance.file_name = check['vals']['newName']
+    if name_duplicate_killer(copy_instance):
         return warning_res('复制完成, 但由于文件重名, 已自动增加后缀*号')
     return good_res('复制完成')
 
