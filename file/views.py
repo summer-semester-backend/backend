@@ -412,6 +412,7 @@ def copy(request):
     if 'newName' in check['vals']:
         copy_instance.file_name = check['vals']['newName']
     if name_duplicate_killer(copy_instance):
+        copy_instance.save()
         return warning_res('复制完成, 但由于文件重名, 已自动增加后缀*号')
     copy_instance.save()
     return good_res('复制完成')
