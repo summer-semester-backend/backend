@@ -14,5 +14,8 @@ urlpatterns = [
     path('all', all),
     path('centerRead', center_read),
     path('copy', copy),
+    path('ancestor',ancestor),
+    path('commonTemplate',common_template_text_read),
+    path('teamTemplate',template_read)
 ]
 

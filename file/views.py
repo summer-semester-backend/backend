@@ -52,6 +52,7 @@ def create(request):
     father = id_to_file(params['fatherID'], team, user)
     if father is None:
         return error_res('找不到父文件')
+    team = father.team
     # 检查文件类型合法性
     params['fileType'] = int(params['fileType'])
     if params['fileType'] not in FType.available_list:
@@ -59,12 +60,12 @@ def create(request):
     if params['fileImage'] == "" and params['fileType'] == 1:
         params['fileImage'] = "http://43.138.77.8:8000/media/image/20220805/20220805220731_38.png"
     # 检查文件名, 如果和相同father下面有重复, 就给加上后缀*, 并返回warning
-    tmp = File.objects.filter(father=father, file_name=params['fileName'], is_deleted=0)
+    tmp = File.objects.filter(father=father, file_name=params['fileName'], is_deleted=0,type=params['fileType'])
     warning = False
     while tmp.exists():
         params['fileName'] += '*'
         warning = True
-        tmp = File.objects.filter(father=father, file_name=params['fileName'], is_deleted=0)
+        tmp = File.objects.filter(father=father, file_name=params['fileName'], is_deleted=0,type=params['fileType'])
     file = File.objects.create(
         file_name=params['fileName'],
         type=params['fileType'],
@@ -377,7 +378,7 @@ def copy(request):
         'POST',
         ['fileID', 'fatherID'],
         C.member,
-        ['teamID']
+        ['teamID', 'newName'],
     )
     if not check['success']:
         return check['res']
@@ -391,6 +392,7 @@ def copy(request):
     father = id_to_file(fatherID, team, user)
     if father is None:
         return error_res('父文件不存在')
+    team = father.team
     #操作合法性检查
     if (file.team is None) != (father.team is None):
         if file.team is None:
@@ -402,7 +404,10 @@ def copy(request):
     if team is None and father.file_creator.userID is not file.file_creator.userID:
         return error_res('父文件不是你自己的文件')
     # 实施复制
-    copy_implement(file, father)
+    copy = copy_implement(file, father)
+    if 'newName' in check['vals']:
+        copy.file_name = check['vals']['newName']
+    copy.save()
     return good_res('复制完成')
 
 
@@ -416,3 +421,59 @@ def find_rubbish(file,rubbish_list:list):
                 find_rubbish(file,rubbish_list)
     else:
         return
+
+@csrf_exempt
+def common_template_text_read(request):
+    file=File.objects.get(fileID=268)
+    info = file.info()
+    content = file.content()
+    if file.is_dir():
+        result = {'sonList': content}
+    else:
+        result = content
+    file.last_visit_time = datetime.datetime.now()
+    file.save()
+    info.update(result)
+    return good_res('成功读取文件', info)
+
+@csrf_exempt
+def ancestor(request):
+    check = file_general_check(
+        request,
+        'POST',
+        ['fileID'],
+        C.member,
+    )
+    if not check['success']:
+        return check['res']
+    file = check['file']
+    assert isinstance(file, File)
+    result_list=[]
+    info = file.info()
+    result_list.append(info)
+    while file.father != None and file.father.type != 0:
+        result_list.append(file.father.info())
+        file=file.father
+    result_list.reverse()
+    info={'list':result_list}
+    return good_res('成功读取祖先文件', info)
+
+@csrf_exempt
+def template_read(request):
+    check = file_general_check(
+        request,
+        'POST',
+        ['teamID'],
+        C.member,
+    )
+    if not check['success']:
+        return check['res']
+    file = check['file']
+    assert isinstance(file, File)
+    info = file.info()
+    content = file.template()
+    result = {'sonList': content}
+    file.last_visit_time = datetime.datetime.now()
+    file.save()
+    info.update(result)
+    return good_res('成功读取团队模板', info)
