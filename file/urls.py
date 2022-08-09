@@ -21,6 +21,8 @@ urlpatterns = [
     path('commonRead',common_read),
     path('projectToTeam',project_to_team),
     path('commonPrototypeTemplate',common_template_prototype_read),
-    path('a',a)
+    path('a',a),
+    path('sharePrototype', share),
+    path('commonRead',common_read)
 ]
 

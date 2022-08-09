@@ -1,10 +1,22 @@
-from .models import File, FType
+from .models import File, FType, Share
 from team.models import Team
 from user.tools import *
 from utils.utils import *
 from utils.responce import *
 from utils.params import *
 from team.models import *
+
+
+def get_share_auth(share_code, file):
+    share_list = Share.objects.filter(file=file, share_code=share_code)
+    if len(share_list) == 0:
+        return C.forbidden
+    for share in share_list:
+        if (datetime.datetime.now() - share.create_time.replace(tzinfo=None)).seconds <= 604800:
+            return C.readonly
+        else:
+            share.delete()
+    return C.forbidden
 
 
 def file_general_check(request, method, params, authority=-100, optional_params=None):
@@ -68,16 +80,19 @@ def file_general_check(request, method, params, authority=-100, optional_params=
         return result
     team = None
     # 权限检查
-    # if file.team is not None:
-    #     team = file.team
-    #     auth = get_user_auth(user, team)
-    #     if auth < authority:
-    #         result['res'] = bad_authority_res('文件操作')
-    #         return result
-    # else:
-    #     if file.file_creator.userID != user.userID:
-    #         result['res'] = error_res('不能访问别人的个人文件')
-    #         return result
+    auth = -100
+    if 'shareCode' in vals:
+        auth = max(auth, get_share_auth(share_code=vals['shareCode'], file=file)) # 获取文件分享权限(如果存在的话)
+    if file.team is not None:
+        team = file.team
+        auth = max(auth, get_user_auth(user, team))
+        if auth < authority:
+            result['res'] = resource_not_found_res()
+            return result
+    else:
+        if file.file_creator.userID != user.userID:
+            result['res'] = error_res('不能访问别人的个人文件')
+            return result
     result['success'] = True
     result.update({
         'user': user,

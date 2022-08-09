@@ -134,6 +134,8 @@ def get_user_auth(user, team):
     raise Exception('有多个权限信息')
     # return -2  # 有多个权限信息
 
+
+
 def set_user_auth(user, team, auth):
     assert isinstance(user, User)
     assert isinstance(team, Team)

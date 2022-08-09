@@ -37,3 +37,7 @@ def not_login_res():
 
 def bad_authority_res(want_to_do_what):
     return error_res("操作权限不足: "+str(want_to_do_what))
+
+
+def resource_not_found_res():
+    return res(11, "资源不存在或者没有权限访问")

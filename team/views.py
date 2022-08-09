@@ -108,16 +108,6 @@ def get_users_info(request):
         for tu in tu_list
     ]
     return good_res('成功获取团队列表', {'userList':userList})
-    # content = {'managerList': [], 'userList': [], 'invalidList': []}
-    # founder = Team_User.objects.get(team=team, authority=C.founder)
-    # content['managerList'].append(user_simple_info(founder.user))
-    # manager_list = Team_User.objects.filter(team=team, authority=C.manager)
-    # user_list = Team_User.objects.filter(team=team, authority=C.member)
-    # invited_list = Team_User.objects.filter(team=team, authority=C.invited)
-    # content['managerList'] += map(lambda x: user_simple_info(x.user), manager_list)
-    # content['userList'] += map(lambda x: user_simple_info(x.user), user_list)
-    # content['invalidList'] += map(lambda x: user_simple_info(x.user), invited_list)
-    # return good_res('成功获取团队成员信息', content)
 
 
 @csrf_exempt
@@ -287,7 +277,7 @@ def delete_member(request):
     that_user = User.objects.get(userID=that_user_id)
     that_user_auth = get_user_auth(that_user, team)
     my_auth = get_user_auth(me, team)
-    if that_user_auth < C.invited:
+    if that_user_auth < C.member:
         return warning_res('对方不在团队中')
     if that_user_auth >= my_auth:
         return error_res('由于你的权限不比对方高, 你无法踢出他')
@@ -305,7 +295,7 @@ def my_team_list(request):
     tu_list = Team_User.objects.filter(user=user)
     team_list = []
     for tu in tu_list:
-        if tu.authority <= C.invited:
+        if tu.authority < C.member:
             continue
         dic = tu.team.info()
         dic['authority'] = C.trans(tu.authority)
@@ -315,7 +305,7 @@ def my_team_list(request):
 
 @csrf_exempt
 def leave(request):
-    check = general_check(request, 'POST', ['teamID'], C.invited)
+    check = general_check(request, 'POST', ['teamID'], C.member)
     if not check['success']:
         return check['res']
     team = check['team']

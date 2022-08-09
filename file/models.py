@@ -124,3 +124,14 @@ class File(models.Model):
         """文件夹下属文件信息, 或文件数据"""
         son_list = File.objects.filter(father=self,type=15)
         return [x.info() for x in son_list if not x.is_deleted]
+
+
+class Share(models.Model):
+    file = models.ForeignKey(
+        File,
+        to_field='fileID',
+        on_delete=models.CASCADE,
+    )
+    share_code = models.CharField(max_length=100,null=True)
+    create_time = models.DateTimeField(auto_now_add=True,null=True)
+    # authority = models.
