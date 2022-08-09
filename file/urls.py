@@ -19,5 +19,6 @@ urlpatterns = [
     path('teamTemplate',template_read),
     path('createTemplate',create_template),
     path('sharePrototype', share),
+    path('commonRead',common_read)
 ]
 

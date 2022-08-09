@@ -496,6 +496,8 @@ def template_read(request):
     if not check['success']:
         return check['res']
     file = check['file']
+    if check['vals']['fileID'] != -1:
+        file=file.team.root_file
     assert isinstance(file, File)
     info = file.info()
     content = file.template()
@@ -548,3 +550,25 @@ def share(request):
     share_code = random_str(10)
     Share.objects.create(file=file, share_code=share_code)
     return good_res('分享成功', {'shareCode':share_code})
+
+    
+@csrf_exempt
+def common_read(request):
+    if request.method != 'POST':
+        return method_err_res()
+    b, userID = get_user_id(request)
+    if not b:
+        return not_login_res()
+    data_json = json.loads(request.body)
+    fileID = int(data_json['fileID'])
+    file=File.objects.get(fileID=fileID)
+    info = file.info()
+    content = file.content()
+    if file.is_dir():
+        result = {'sonList': content}
+    else:
+        result = content
+    file.last_visit_time = datetime.datetime.now()
+    file.save()
+    info.update(result)
+    return good_res('成功读取文件', info)
