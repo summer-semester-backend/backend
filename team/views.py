@@ -103,7 +103,7 @@ def get_users_info(request):
             'username': tu.user.username,
             'email': tu.user.email,
             'userID': tu.user.userID,
-            'authority': tu.authority,
+            'authority': tu.authority
         }
         for tu in tu_list
     ]

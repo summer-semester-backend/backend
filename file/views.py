@@ -395,15 +395,15 @@ def copy(request):
         return error_res('父文件不存在')
     team = father.team
     #操作合法性检查
-    if (file.team is None) != (father.team is None):
-        if file.team is None:
-            return error_res('个人文件只能复制为个人文件')
-        else:
-            return error_res('团队文件只能复制为团队文件')
-    if team is not None and father.team.teamID is not file.team.teamID:
-        return error_res('父文件需要属于同一团队')
-    if team is None and father.file_creator.userID is not file.file_creator.userID:
-        return error_res('父文件不是你自己的文件')
+    # if (file.team is None) != (father.team is None):
+    #     if file.team is None:
+    #         return error_res('个人文件只能复制为个人文件')
+    #     else:
+    #         return error_res('团队文件只能复制为团队文件')
+    # if team is not None and father.team.teamID is not file.team.teamID:
+    #     return error_res('父文件需要属于同一团队')
+    # if team is None and father.file_creator.userID is not file.file_creator.userID:
+    #     return error_res('父文件不是你自己的文件')
     # 实施复制
     copy_instance = copy_implement(file, father)
     if copy_instance.type==15:
@@ -414,6 +414,7 @@ def copy(request):
     if name_duplicate_killer(copy_instance):
         copy_instance.save()
         return warning_res('复制完成, 但由于文件重名, 已自动增加后缀*号')
+    copy_instance.file_creator=user
     copy_instance.save()
     return good_res('复制完成')
 
@@ -572,3 +573,49 @@ def common_read(request):
     file.save()
     info.update(result)
     return good_res('成功读取文件', info)
+
+
+@csrf_exempt
+def project_to_team(request):
+    if request.method != 'POST':
+        return method_err_res()
+    b, userID = get_user_id(request)
+    if not b:
+        return not_login_res()
+    data_json = json.loads(request.body)
+    fileID = int(data_json['fileID'])
+    file=File.objects.get(fileID=fileID)
+    tu_list = Team_User.objects.filter(team=file.team)
+    userList = [
+        {
+            'username': tu.user.username,
+            'email': tu.user.email,
+            'userID': tu.user.userID,
+            'authority': tu.authority,
+            'avatar':tu.user.avatar
+        }
+        for tu in tu_list
+    ]
+    return good_res('成功获取团队列表', {'userList':userList})
+
+
+@csrf_exempt
+def common_template_prototype_read(request):
+    if request.method != 'POST':
+        return method_err_res()
+    b, userID = get_user_id(request)
+    if not b:
+        return not_login_res()
+    data_json = json.loads(request.body)
+    fileID = int(data_json['fileID'])
+    file=File.objects.get(fileID=268)
+    son_list = File.objects.filter(father=file,type=13)
+    return good_res('成功读取原型图模板', {'prototypeList':[x.info() for x in son_list if not x.is_deleted]})
+
+@csrf_exempt
+def a(request):
+    file_list=File.objects.filter(team=None)
+    for file in file_list:
+        file.delete()
+    return good_res('操作成功')
+

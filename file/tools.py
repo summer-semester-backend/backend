@@ -166,7 +166,8 @@ def name_duplicate_killer(file):
     assert isinstance(file, File)
     if file.father is None:
         return False
-    file_list = File.objects.filter(father=file.father)
+    file_list = File.objects.filter(father=file.father,type=file.type)
+
     name_set = set()
     for f in file_list:
         if f.fileID != file.fileID:
