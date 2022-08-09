@@ -68,16 +68,16 @@ def file_general_check(request, method, params, authority=-100, optional_params=
         return result
     team = None
     # 权限检查
-    if file.team is not None:
-        team = file.team
-        auth = get_user_auth(user, team)
-        if auth < authority:
-            result['res'] = bad_authority_res('文件操作')
-            return result
-    else:
-        if file.file_creator.userID != user.userID:
-            result['res'] = error_res('不能访问别人的个人文件')
-            return result
+    # if file.team is not None:
+    #     team = file.team
+    #     auth = get_user_auth(user, team)
+    #     if auth < authority:
+    #         result['res'] = bad_authority_res('文件操作')
+    #         return result
+    # else:
+    #     if file.file_creator.userID != user.userID:
+    #         result['res'] = error_res('不能访问别人的个人文件')
+    #         return result
     result['success'] = True
     result.update({
         'user': user,
@@ -151,7 +151,8 @@ def name_duplicate_killer(file):
     assert isinstance(file, File)
     if file.father is None:
         return False
-    file_list = File.objects.filter(father=file.father)
+    file_list = File.objects.filter(father=file.father,type=file.type)
+
     name_set = set()
     for f in file_list:
         if f.fileID != file.fileID:
