@@ -81,7 +81,7 @@ class Team_User(models.Model):
         (C.founder, 'founder'),
         (C.manager, 'manager'),
         (C.member, 'member'),
-        (C.invited, 'invited')
+        # (C.invited, 'invited')
     ]
     authority = models.IntegerField(
         choices=auth_choices,
