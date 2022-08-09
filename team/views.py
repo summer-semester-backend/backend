@@ -226,7 +226,7 @@ def accept_invitation(request):
                 result = {'result': 0, 'message': '加入团队成功!','teamID':invitation.team.teamID}
                 return JsonResponse(result)   
             else:
-                result = {'result': 0, 'message': '您已加入该团队!','teamID':invitation.team.teamID}
+                result = {'result': 1, 'message': '您已加入该团队!','teamID':invitation.team.teamID}
                 return JsonResponse(result)   
     else:
         result = {'result': 2, 'message': '请求方式错误!'}

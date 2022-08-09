@@ -596,7 +596,7 @@ def project_to_team(request):
         }
         for tu in tu_list
     ]
-    return good_res('成功获取团队列表', {'userList':userList})
+    return good_res('成功获取团队列表', {'userList':userList,'teamID':file.team.teamID})
 
 
 @csrf_exempt
