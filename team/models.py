@@ -46,7 +46,11 @@ class C:
     founder = 2
     manager = 1
     member = 0
-    invited = -1
+
+    writable = 0
+    readonly = -5
+    forbidden = -100
+
 
     @staticmethod
     def trans(auth):
@@ -56,8 +60,8 @@ class C:
             return '管理员'
         if auth == C.member:
             return '成员'
-        if auth == C.invited:
-            return '已被邀请'
+        # if auth == C.invited:
+        #     return '已被邀请'
         print(auth)
         assert '程序不应该' == '来到这里'
 

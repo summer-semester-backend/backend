@@ -5,7 +5,7 @@ from utils.responce import method_err_res, not_login_res, bad_authority_res
 from utils.params import lack_error_res, lack_check, get_params, get_params_by_list
 from utils.utils import get_user_id, get_user, get_user_auth, random_str, user_simple_info
 import json
-from .models import File, FType
+from .models import File, FType, Share
 
 from .tools import id_to_file, file_general_check, copy_implement, name_duplicate_killer
 from team.tools import id_to_team
@@ -88,8 +88,8 @@ def read(request):
         request,
         'POST',
         ['fileID'],
-        C.member,
-        optional_params=['teamID']
+        C.readonly,
+        optional_params=['teamID', 'shareCode']
     )
     if not check['success']:
         return check['res']
@@ -532,3 +532,19 @@ def create_template(request):
     if warning:
         return warning_res('同路径下不可重名, 已自动在项目/文件名后增加*号')
     return good_res('成功创建团队模板')
+
+
+@csrf_exempt
+def share(request):
+    check = file_general_check(
+        request,
+        'POST',
+        ['fileID'],
+        C.member,
+    )
+    if not check['success']:
+        return check['res']
+    file = check['file']
+    share_code = random_str(10)
+    Share.objects.create(file=file, share_code=share_code)
+    return good_res('分享成功', {'shareCode':share_code})
