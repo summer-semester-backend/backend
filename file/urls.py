@@ -17,6 +17,7 @@ urlpatterns = [
     path('ancestor',ancestor),
     path('commonTemplate',common_template_text_read),
     path('teamTemplate',template_read),
-    path('createTemplate',create_template)
+    path('createTemplate',create_template),
+    path('commonRead',common_read)
 ]
 
