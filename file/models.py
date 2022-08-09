@@ -11,7 +11,7 @@ class FType:
     prototype = 13
     text = 14
     text_template = 15
-    available_list = [root, project, directory, uml, prototype, text,text_template]
+    available_list = [root, project, directory, uml, prototype, text, text_template]
 
 
 class File(models.Model):

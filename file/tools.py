@@ -19,7 +19,7 @@ def get_share_auth(share_code, file):
     return C.forbidden
 
 
-def file_general_check(request, method, params, authority=-100, optional_params=None):
+def file_general_check(request, method, params, authority=C.forbidden, optional_params=None):
     """文件操作的各种检查
     如果有问题, 则返回内容为
     {
@@ -52,11 +52,6 @@ def file_general_check(request, method, params, authority=-100, optional_params=
     if optional_params is None:
         optional_params = []
     result = {'success': False}
-    # 登录检查
-    user = get_user(request)
-    if user is None:
-        result['res'] = not_login_res()
-        return result
     # 获取参数
     vals = get_params_by_list(request, params, optional_arg_list=optional_params)
     lack, lack_list = lack_check(vals)
@@ -69,7 +64,7 @@ def file_general_check(request, method, params, authority=-100, optional_params=
         if 'teamID' not in vals:
             result['res'] = error_res('fileID为-1的时候需要给出teamID')
             return result
-        team_list = Team.objects.filter(teamID=vals['teamID']) 
+        team_list = Team.objects.filter(teamID=vals['teamID'])
         if not team_list.exists():
             result['res'] = error_res('团队不存在')
             return result
@@ -79,10 +74,25 @@ def file_general_check(request, method, params, authority=-100, optional_params=
         result['res'] = error_res('找不到文件')
         return result
     team = None
-    # 权限检查
+    # 权限检查1 (分享产生的权限)
     auth = -100
     if 'shareCode' in vals:
         auth = max(auth, get_share_auth(share_code=vals['shareCode'], file=file)) # 获取文件分享权限(如果存在的话)
+    # 登录检查
+    user = get_user(request)
+    result.update({
+        'user': user,
+        'file': file,
+        'vals': vals,
+    })
+    if user is None: # 未登录, 通常来说是错误
+        if auth == C.forbidden:
+            result['res'] = not_login_res()
+            return result
+        elif auth >= authority: # 是通过分享链接打开的? 提前返回
+            result['success'] = True
+            return result
+    # 权限检查2 (团队身份产生的权限)
     if file.team is not None:
         team = file.team
         auth = max(auth, get_user_auth(user, team))
@@ -94,11 +104,6 @@ def file_general_check(request, method, params, authority=-100, optional_params=
             result['res'] = error_res('不能访问别人的个人文件')
             return result
     result['success'] = True
-    result.update({
-        'user': user,
-        'file': file,
-        'vals': vals,
-    })
     return result
 
 

@@ -37,7 +37,7 @@ def get_params_by_list(request, arg_list, optional_arg_list=None):
                 result[str(arg)] = int(data_json[str(arg)])
             elif str(arg)[-1] == 'e' and str(arg)[-2] == 'p' and data_json[str(arg)]:
                 result[str(arg)] = int(data_json[str(arg)])
-            else :
+            else:
                 result[str(arg)] = data_json[str(arg)]
         else:
             result[str(arg)] = None
