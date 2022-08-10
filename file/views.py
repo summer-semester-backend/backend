@@ -115,6 +115,10 @@ def write(request):
     if not check['success']:
         return check['res']
     file = check['file']
+    user = check['user']
+    locker = who_keep_lock(file)
+    if locker is not None and locker.userID != user.userID:
+        return error_res('已被用户' + locker.username + '锁定, 无法写入')
     assert isinstance(file, File)
     vals = get_params_by_list(
         request,
@@ -631,6 +635,12 @@ def a(request):
     return good_res('操作成功')
 
 
+def who_keep_lock(file):
+    assert isinstance(file, File)
+    if file.lock_user is not None and file.lock_time is not None and time_from(file.lock_time) < 20:
+        return file.lock_user
+    return None
+
 @csrf_exempt
 def acquire_lock(request):
     check = file_general_check(
@@ -643,8 +653,9 @@ def acquire_lock(request):
         return check['res']
     file = check['file']
     user = check['user']
-    if file.lock_user is not None:
-        return warning_res('已被用户'+file.lock_user.username+'锁定')
+    locker = who_keep_lock(file)
+    if locker is not None:
+        return warning_res('已被用户'+locker.username+'锁定')
     file.lock_user = user
     file.save()
     return good_res('获得文件锁')
@@ -662,8 +673,29 @@ def release_lock(request):
         return check['res']
     file = check['file']
     user = check['user']
-    if file.lock_user is None or file.lock_user.userID != user.userID:
-        return warning_res('你并没有持有这个锁')
+    locker = who_keep_lock(file)
+    if locker is not None and locker.userID != user.userID:
+        return warning_res('已被用户'+locker.username+'锁定')
     file.lock_user = None
     file.save()
     return good_res('释放文件锁')
+
+
+@csrf_exempt
+def keep_lock(request):
+    check = file_general_check(
+        request,
+        'POST',
+        ['fileID'],
+        C.member,
+    )
+    if not check['success']:
+        return check['res']
+    file = check['file']
+    user = check['user']
+    locker = who_keep_lock(file)
+    if locker is not None and locker.userID != user.userID:
+        return warning_res('已被用户'+locker.username+'锁定')
+    file.lock_user = user
+    file.save()
+    return good_res('维持文件锁')

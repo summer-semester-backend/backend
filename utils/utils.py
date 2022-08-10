@@ -146,3 +146,8 @@ def set_user_auth(user, team, auth):
     if len(tu) == 1:
         return tu[0].authority
     raise Exception('有多个权限信息')
+
+
+def time_from(t):
+    # assert isinstance(t, )
+    return (datetime.datetime.now() - t).seconds

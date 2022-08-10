@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import models
 from team.models import Team
 from user.models import User
@@ -57,6 +59,7 @@ class File(models.Model):
         null=True,
         related_name='上锁的用户'
     )
+    lock_time = models.DateTimeField(null=True, auto_now=True)
 
     def deletable(self):
         return self.type >= FType.project

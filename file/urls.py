@@ -27,5 +27,6 @@ urlpatterns = [
 
     path('acquireLock', acquire_lock),
     path('releaseLock', release_lock),
+    path('keepLock', keep_lock),
 ]
 
