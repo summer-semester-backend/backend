@@ -93,16 +93,17 @@ def file_general_check(request, method, params, authority=C.forbidden, optional_
             result['success'] = True
             return result
     # 权限检查2 (团队身份产生的权限)
-    if file.team is not None:
-        team = file.team
-        auth = max(auth, get_user_auth(user, team))
-        if auth < authority:
-            result['res'] = resource_not_found_res()
-            return result
-    else:
-        if file.file_creator.userID != user.userID:
-            result['res'] = error_res('不能访问别人的个人文件')
-            return result
+    if 'newName' not in vals:
+        if file.team is not None:
+            team = file.team
+            auth = max(auth, get_user_auth(user, team))
+            if auth < authority:
+                result['res'] = resource_not_found_res()
+                return result
+        else:
+            if file.file_creator.userID != user.userID:
+                result['res'] = error_res('不能访问别人的个人文件')
+                return result
     result['success'] = True
     return result
 

@@ -128,7 +128,7 @@ class File(models.Model):
             data=self.data,
             file_creator=self.file_creator,
             is_deleted=self.is_deleted,
-            type=self.type,
+            type=self.type
         )
 
     def template(self):
@@ -136,6 +136,25 @@ class File(models.Model):
         son_list = File.objects.filter(father=self,type=15).order_by('-create_time')
         return [x.info() for x in son_list if not x.is_deleted]
 
+    
+    def prototype_info(self):
+        """文件基本信息"""
+        image_list=Image.objects.filter(fileID=self.fileID).order_by('create_time')
+        previewImages=[]
+        for image in image_list:
+            previewImages.append(image.preview_image)
+        return {
+            'fileID': self.fileID,
+            'fileName': self.file_name,
+            'fileType': self.type,
+            'fileImage': self.file_image,
+            'fatherID': self.father.fileID if self.father is not None else '',
+            'teamName': self.team.team_name if self.team is not None else '',
+            'userName': self.file_creator.username,
+            'createTime': self.create_time,
+            'lastEditTime': self.last_visit_time,
+            'previewImages':previewImages
+        }
 
 class Share(models.Model):
     file = models.ForeignKey(
@@ -146,3 +165,9 @@ class Share(models.Model):
     share_code = models.CharField(max_length=100,null=True)
     create_time = models.DateTimeField(auto_now_add=True,null=True)
     # authority = models.
+
+class Image(models.Model):
+    imageID = models.AutoField(primary_key=True, editable=False)
+    fileID = models.IntegerField(null=True)
+    preview_image = models.CharField(max_length=1000,null=True)
+    create_time = models.DateTimeField(auto_now_add=True,null=True)
