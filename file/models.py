@@ -50,6 +50,14 @@ class File(models.Model):
     ]
     type = models.IntegerField(choices=file_types)
 
+    lock_user = models.ForeignKey(
+        User,
+        to_field='userID',
+        on_delete=models.CASCADE,
+        null=True,
+        related_name='上锁的用户'
+    )
+
     def deletable(self):
         return self.type >= FType.project
 

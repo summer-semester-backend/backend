@@ -630,3 +630,40 @@ def a(request):
         file.delete()
     return good_res('操作成功')
 
+
+@csrf_exempt
+def acquire_lock(request):
+    check = file_general_check(
+        request,
+        'POST',
+        ['fileID'],
+        C.member,
+    )
+    if not check['success']:
+        return check['res']
+    file = check['file']
+    user = check['user']
+    if file.lock_user is not None:
+        return warning_res('已被用户'+file.lock_user.username+'锁定')
+    file.lock_user = user
+    file.save()
+    return good_res('获得文件锁')
+
+
+@csrf_exempt
+def release_lock(request):
+    check = file_general_check(
+        request,
+        'POST',
+        ['fileID'],
+        C.member,
+    )
+    if not check['success']:
+        return check['res']
+    file = check['file']
+    user = check['user']
+    if file.lock_user is None or file.lock_user.userID != user.userID:
+        return warning_res('你并没有持有这个锁')
+    file.lock_user = None
+    file.save()
+    return good_res('释放文件锁')
