@@ -581,6 +581,22 @@ def share(request):
     Share.objects.create(file=file, share_code=share_code)
     return good_res('分享成功', {'shareCode':share_code})
 
+
+@csrf_exempt
+def close_share(request):
+    check = file_general_check(
+        request,
+        'POST',
+        ['fileID'],
+        C.member,
+    )
+    if not check['success']:
+        return check['res']
+    file = check['file']
+    share_list = Share.objects.filter(file=file)
+    for share in share_list:
+        share.delete()
+    return good_res('已关闭分享')
     
 @csrf_exempt
 def common_read(request):
@@ -649,7 +665,7 @@ def a(request):
 
 def who_keep_lock(file):
     assert isinstance(file, File)
-    if file.lock_user is not None and file.lock_time is not None and time_from(file.lock_time) < 20:
+    if file.lock_user is not None and file.lock_time is not None and time_from(file.lock_time) < 9:
         return file.lock_user
     return None
 
