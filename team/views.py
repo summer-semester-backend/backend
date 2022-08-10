@@ -134,12 +134,15 @@ def add_manager(request):
 
 @csrf_exempt
 def change_team_info(request):
-    check = general_check(request, 'POST', ['teamID', 'summary'], C.manager)
+    check = general_check(request, 'POST', ['teamID'], C.manager, ['teamname', 'summary'])
     if not check['success']:
         return check['res']
     team = check['team']
-    summary = check['vals']['summary']
-    team.summary = summary
+    vals = check['vals']
+    if 'summary' in vals:
+        team.summary = vals['summary']
+    if 'teamname' in vals:
+        team.team_name = vals['teamname']
     team.save()
     return good_res('成功修改团队信息')
 

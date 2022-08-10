@@ -594,8 +594,8 @@ def close_share(request):
         return check['res']
     file = check['file']
     share_list = Share.objects.filter(file=file)
-    for share in share_list:
-        share.delete()
+    for share_instance in share_list:
+        share_instance.delete()
     return good_res('已关闭分享')
     
 @csrf_exempt
