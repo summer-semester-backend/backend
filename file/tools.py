@@ -156,9 +156,9 @@ def copy_implement(file, father, level=0):
         # print(son.file_name)
         if not son.is_deleted:
             copy_implement(son, copy, level+1)
+    copy.father = father
     if copy.father.fileID == file.father.fileID:
         copy.file_name += ' - 副本'
-    copy.father = father
     copy.save()
     return copy
 

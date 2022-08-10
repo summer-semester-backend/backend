@@ -74,11 +74,11 @@ class File(models.Model):
         """文件夹下属文件信息, 或文件数据"""
         if self.is_dir():
             if self.type == 0:
-                son_list = File.objects.filter(father=self, type=1)
+                son_list = File.objects.filter(father=self, type=1).order_by('-create_time')
                 return [x.info() for x in son_list if not x.is_deleted]
                 # return list(map(lambda x: x.info(), son_list))
             else:
-                son_list = File.objects.filter(father=self)
+                son_list = File.objects.filter(father=self).order_by('-create_time')
                 return [x.info() for x in son_list if not x.is_deleted]
                 # return list(map(lambda x: x.info(), son_list))
         else:
@@ -90,15 +90,15 @@ class File(models.Model):
             if self.type == 0:
                 if judge:
                     son_list = [self]
-                    son_list += File.objects.filter(father=self).exclude(type=1).exclude(type=15)
+                    son_list += File.objects.filter(father=self).exclude(type=1).exclude(type=15).order_by('-create_time')
                     return [x.info() for x in son_list if not x.is_deleted]
                     # return list(map(lambda x: x.info(), son_list))
                 else:
-                    son_list = File.objects.filter(father=self, type=1)
+                    son_list = File.objects.filter(father=self, type=1).order_by('-create_time')
                     return [x.info() for x in son_list if not x.is_deleted]
                     # return list(map(lambda x: x.info(), son_list))
             else:
-                son_list = File.objects.filter(father=self)
+                son_list = File.objects.filter(father=self).order_by('-create_time')
                 return [x.info() for x in son_list if not x.is_deleted]
         else:
             return {'data': self.data}
@@ -122,7 +122,7 @@ class File(models.Model):
 
     def template(self):
         """文件夹下属文件信息, 或文件数据"""
-        son_list = File.objects.filter(father=self,type=15)
+        son_list = File.objects.filter(father=self,type=15).order_by('-create_time')
         return [x.info() for x in son_list if not x.is_deleted]
 
 

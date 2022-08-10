@@ -93,6 +93,8 @@ def read(request):
     )
     if not check['success']:
         return check['res']
+    if check['user'] is None:
+        print("not login but success")
     file = check['file']
     assert isinstance(file, File)
     info = file.info()
@@ -272,7 +274,7 @@ def clear_bin(request):
         result_list = []
         for file in file_list:
             file.delete()
-        return res(0, '清空成功', content)
+        return res(0, '清空成功')
     else:
         rubbish_list=[]
         file=File.objects.get(fileID=fileID)
@@ -280,7 +282,7 @@ def clear_bin(request):
         result_list = []
         for rubbish in rubbish_list:
             rubbish.delete()
-        return res(0, '清空成功', content)
+        return res(0, '清空成功')
 
 
 @csrf_exempt
@@ -300,7 +302,7 @@ def bin_list(request):
         result_list = []
         for file in file_list:
             content = {'fileID': file.fileID, 'fileName': file.file_name,
-                       'abandonTime': file.abandon_time, 'fileType': file.type}
+                       'abandonTime': file.abandon_time, 'fileType': file.type,'userName':file.file_creator.username}
             result_list.append(content)
         content = {'list': result_list}
         return res(0, '查询成功', content)
@@ -313,7 +315,7 @@ def bin_list(request):
         for rubbish in rubbish_list:
             content = {'fileID': rubbish.fileID, 'fileName': rubbish.file_name,
                         'abandonTime': rubbish.abandon_time, 'teamName': rubbish.team.team_name,
-                        'fileType': rubbish.type}
+                        'fileType': rubbish.type,'userName':rubbish.file_creator.username}
             result_list.append(content)
         content = {'list': result_list}
         return res(0, '查询成功', content)
@@ -334,13 +336,18 @@ def all(request):
         if get_user_auth(user, team.team) >= 0:
             project_list += File.objects.filter(team=team.team, type=1, is_deleted=0)
     result_list = []
+    ss = []
     for project in project_list:
         if get_user_auth(user, project.team) >= 0:
+            s = project.create_time.strftime('%Y-%m-%d %H:%M:%S')
             content = {'fileID': project.fileID, 'fileName': project.file_name,
-                       'createTime': project.create_time, 'lastVisitTime': project.last_visit_time,
-                       'fileImage': project.file_image, 'teamName': project.team.team_name,
-                       'userName': project.file_creator.username}
-            result_list.append(content)
+                       'fileImage': project.file_image, 'createTime': project.create_time,
+                       'lastVisitTime': project.last_visit_time, 'teamName': project.team.team_name,
+                       'userName': project.file_creator.username, 's': s}
+            ss.append(content)
+    ss.sort(key=lambda s: s["s"], reverse=True)
+    for project in ss:
+        result_list.append(project)
     content = {'list': result_list}
     return res(0, '查询成功', content)
 
@@ -390,7 +397,11 @@ def copy(request):
     team = None
     if 'teamID' in check['vals']:
         team = id_to_team(check['vals']['teamID'])
-    father = id_to_file(fatherID, team, user)
+    # 获取father
+    if fatherID == -1 and team is None:
+        father = file.father
+    else:
+        father = id_to_file(fatherID, team, user)
     if father is None:
         return error_res('父文件不存在')
     team = father.team
@@ -411,11 +422,11 @@ def copy(request):
         copy_instance.save()
     if 'newName' in check['vals']:
         copy_instance.file_name = check['vals']['newName']
+    copy_instance.file_creator=user
+    copy_instance.save()
     if name_duplicate_killer(copy_instance):
         copy_instance.save()
         return warning_res('复制完成, 但由于文件重名, 已自动增加后缀*号')
-    copy_instance.file_creator=user
-    copy_instance.save()
     return good_res('复制完成')
 
 

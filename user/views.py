@@ -59,7 +59,7 @@ def login(request):
                     result = {'result': 2, 'message': '密码不正确!'}
                 else:
                     request.session['email'] = email
-                    result = {'result': 0, 'message': '登录成功!', 'username': user.username}
+                    result = {'result': 0, 'message': '登录成功!', 'username': user.username,'avatar':user.avatar}
                     token = get_token(email)
                     result['token'] = token
                     request.session['token'] = token
@@ -280,3 +280,13 @@ def update_ava(request):
     else:
         result = {'result': 2, 'message': '请检查上传内容!'}
         return JsonResponse(result)
+
+@csrf_exempt
+def get_avatar(request):
+    if request.method != 'POST':
+        return method_err_res()
+    data_json = json.loads(request.body)
+    userID = int(data_json.get('userID'))
+    user = User.objects.get(userID=userID)
+    result = {'result': 0, 'message': '获取成功','username':user.username,'avatar':user.avatar}
+    return JsonResponse(result)

@@ -12,5 +12,6 @@ urlpatterns = [
     path('update', update),
     path('detail', get_user),
     path('upload', upload),
-    path('update_ava', update_ava)
+    path('update_ava', update_ava),
+    path('getAvatar',get_avatar)
 ]
