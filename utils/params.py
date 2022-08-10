@@ -64,7 +64,7 @@ def lack_check(obj_dic):
 # 传过来的数据存在缺项
 def lack_error_res(lack_list):
     return JsonResponse({
-        'result': 2,
+        'result': 4,
         'message': '请求缺少字段',
         'lack_list': list(lack_list),
     })
