@@ -5,7 +5,7 @@ from utils.responce import method_err_res, not_login_res, bad_authority_res
 from utils.params import lack_error_res, lack_check, get_params, get_params_by_list
 from utils.utils import get_user_id, get_user, get_user_auth, random_str, user_simple_info
 import json
-from .models import File, FType, Share
+from .models import File, FType, Share,Image
 
 from .tools import id_to_file, file_general_check, copy_implement, name_duplicate_killer
 from team.tools import id_to_team
@@ -119,7 +119,7 @@ def write(request):
     vals = get_params_by_list(
         request,
         arg_list=['fileID'],
-        optional_arg_list=['fileName', 'fileImage', 'fatherID', 'data']
+        optional_arg_list=['fileName', 'fileImage', 'fatherID', 'data','previewImages']
     )
     if 'fatherID' in vals:
         father = id_to_file(vals['fatherID'], file.team, file.file_creator)
@@ -130,6 +130,16 @@ def write(request):
         file.father = father
     # 检查文件名, 如果和相同father下面有重复, 就给加上后缀*, 并返回warning
     tmp = File.objects.get(fileID=vals['fileID'])
+    if 'previewImages' in vals:
+        image_list=Image.objects.filter(fileID=vals['fileID'])
+        if image_list.exists:
+            for image in image_list:
+                image.delete()
+            for protoType in vals['previewImages']:
+                Image.objects.create(fileID=vals['fileID'],preview_image=protoType)
+        else:
+            for protoType in vals['previewImages']:
+                Image.objects.create(fileID=vals['fileID'],preview_image=protoType)
     warning = False
     if 'fileName' in vals:
         if tmp.file_name != vals['fileName']:
@@ -424,6 +434,10 @@ def copy(request):
         copy_instance.file_name = check['vals']['newName']
     copy_instance.file_creator=user
     copy_instance.save()
+    if copy_instance.type==13:
+        image_list=Image.objects.filter(fileID=file.fileID)
+        for image in image_list:
+            Image.objects.create(fileID=copy_instance.fileID,preview_image=image.preview_image)
     if name_duplicate_killer(copy_instance):
         copy_instance.save()
         return warning_res('复制完成, 但由于文件重名, 已自动增加后缀*号')
@@ -617,11 +631,9 @@ def common_template_prototype_read(request):
     b, userID = get_user_id(request)
     if not b:
         return not_login_res()
-    data_json = json.loads(request.body)
-    fileID = int(data_json['fileID'])
     file=File.objects.get(fileID=268)
     son_list = File.objects.filter(father=file,type=13)
-    return good_res('成功读取原型图模板', {'prototypeList':[x.info() for x in son_list if not x.is_deleted]})
+    return good_res('成功读取原型图模板', {'prototypeList':[x.prototype_info() for x in son_list if not x.is_deleted]})
 
 @csrf_exempt
 def a(request):
