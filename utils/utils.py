@@ -12,6 +12,7 @@ from django.core.mail import send_mail  # 发送邮件模块
 from backend import settings  # setting.py添加的的配置信息
 import datetime
 import json
+from datetime import timezone
 
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.http import JsonResponse, HttpRequest
@@ -150,4 +151,6 @@ def set_user_auth(user, team, auth):
 
 def time_from(t):
     # assert isinstance(t, )
-    return (datetime.datetime.now() - t).seconds
+    # t = t.replace(tzinfo=None)
+    now = datetime.datetime.now(timezone.utc)
+    return (now - t).seconds
