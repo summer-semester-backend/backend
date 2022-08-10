@@ -1,4 +1,6 @@
 import json
+
+from django.contrib.auth.hashers import make_password, check_password
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.http import QueryDict, JsonResponse
@@ -33,7 +35,7 @@ def register(request):
             now = datetime.datetime.now(timezone.utc)
             if (now - email_code.time).seconds > 300:
                 return JsonResponse({'result': 2, 'message': "验证码已失效!"})
-            new_user = User(username=username, nickname=nickname, password=password, email=email,
+            new_user = User(username=username, nickname=nickname, password= make_password(password), email=email,
                             avatar="http://43.138.77.8:8000/media/image/20220805/20220805223719_68.png")
             new_user.save()
             create_team_implement(new_user, new_user.username + '的团队', '为新用户自动创建')
@@ -55,7 +57,7 @@ def login(request):
                 result = {'result': 2, 'message': '邮箱未注册!'}
             else:
                 user = User.objects.get(email=email)
-                if user.password != password:
+                if user.password != password and not check_password(password, user.password):
                     result = {'result': 2, 'message': '密码不正确!'}
                 else:
                     request.session['email'] = email

@@ -23,6 +23,9 @@ urlpatterns = [
     path('commonPrototypeTemplate',common_template_prototype_read),
     path('a',a),
     path('sharePrototype', share),
-    path('commonRead',common_read)
+    path('commonRead',common_read),
+
+    path('acquireLock', acquire_lock),
+    path('releaseLock', release_lock),
 ]
 
